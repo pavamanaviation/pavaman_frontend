@@ -13,7 +13,7 @@ html, body {
 }
 .customer-discount-products-section {
     display: grid;
-    gap: 100px; /* or whatever value you want */
+    gap: 100px;
     grid-template-columns: repeat(5, 1fr);
     margin: 20px auto;
     justify-content: center;
@@ -325,7 +325,7 @@ html, body {
         padding: 10px;
     }
 }
-*/
+
 .single-discount-product-wrapper {
   display: flex;
   justify-content: flex-start; 
