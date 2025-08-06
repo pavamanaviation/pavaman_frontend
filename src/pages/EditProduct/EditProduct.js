@@ -153,7 +153,7 @@ console.log(`${name} updated. Selected ${files.length} file(s).`);
           <label className="label">Product Name</label>
           <input type="text" name="product_name" value={product.product_name} onChange={handleChange} required className="input-field" />
         </div>
-        <div className="input-row">
+        <div className="admin-input-row">
           <div>
             <label className="label">SKU</label>
             <input type="text" name="sku_number" value={product.sku_number} onChange={handleChange} required className="input-field" />
@@ -167,7 +167,7 @@ console.log(`${name} updated. Selected ${files.length} file(s).`);
             <input type="text"  name="price" value={product.price} onChange={handleChange} required className="input-field" />
           </div>
         </div>
-        <div className="input-row">
+        <div className="admin-input-row">
           <div>
             <label className="label">Quantity</label>
             <input type="text"  name="quantity" value={product.quantity} onChange={handleChange} required className="input-field" />
@@ -189,7 +189,7 @@ console.log(`${name} updated. Selected ${files.length} file(s).`);
           <label htmlFor="product_images" className="upload-label">Upload (1 or more) Product Images</label>
           <div className="upload-box">
             {product.product_images.length > 0 ? (
-              <div className="success-icon">
+              <div className="admin-success-icon">
                 <img src={SuccessIcon} alt="Success Icon" className="success-icon-img" />
                 <p>Successfully uploaded file(s) uploaded</p>
               </div>
@@ -207,7 +207,7 @@ console.log(`${name} updated. Selected ${files.length} file(s).`);
           <label htmlFor="material_file" className="upload-label">Upload Material File</label>
           <div className="upload-box">
             {product.material_file ? (
-              <div className="success-icon">
+              <div className="admin-success-icon">
                 <img src={SuccessIcon} alt="Success Icon" className="success-icon-img" />
                 <p>Successfully uploaded file</p>
               </div>
@@ -221,7 +221,7 @@ console.log(`${name} updated. Selected ${files.length} file(s).`);
           </div>
         </div>
 
-        <div className="button-group">
+        <div className="form-actions">
           <button type="button" className="admin-cancel-button" onClick={() => navigate(-1)}>Cancel</button>
           <button type="submit" className="admin-submit-button" disabled={loading}>Update</button>
         </div>

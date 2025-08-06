@@ -29,6 +29,7 @@
     width: 191px;
     height: 191px;
     margin: 16px;
+    cursor: pointer;
 }
 
 .customer-product-name {
@@ -304,4 +305,12 @@
 
 .latest-product-card{
     max-height: 350px;
+}
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
 }

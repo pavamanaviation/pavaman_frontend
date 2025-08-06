@@ -486,8 +486,8 @@
 }
 
 .zoom-main-image {
-  max-width: 120%;
-  max-height: 80vh;
+  width: 60%;
+  max-height: 60vh;
   object-fit: contain;
   border-radius: 8px;
 }
@@ -516,7 +516,8 @@
 
 @media (max-width: 1024px) {
   .zoom-main-image {
-    max-height: 1000vh;
+    height: 470px;
+    width: 350px;
   }
 
   .zoom-thumbnail {
@@ -532,7 +533,8 @@
   }
 
   .zoom-main-image {
-    max-height: 45vh;
+    height: 350px;
+    width: 270px;
   }
 
   .zoom-thumbnail {
@@ -543,7 +545,8 @@
 
 @media (max-width: 480px) {
   .zoom-main-image {
-    max-height: 40vh;
+    height: 300px;
+    width: 245px;
   }
 
   .zoom-thumbnail {

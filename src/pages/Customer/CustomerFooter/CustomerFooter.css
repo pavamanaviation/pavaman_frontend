@@ -28,7 +28,7 @@
   margin: 5px 0;
 }
 
-.footer-links {
+.footer-columns {
   display: flex;
   flex: 2;
   flex-wrap: wrap;
@@ -36,6 +36,11 @@
   justify-content: space-around;
   cursor: pointer;
 }
+
+.footer-links{
+  cursor: pointer;
+}
+
 .footer-column {
   min-width: 150px;
   text-align: initial;

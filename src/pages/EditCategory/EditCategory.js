@@ -6,6 +6,8 @@ import SuccessIcon from "../../assets/images/succes-icon.png";
 import PopupMessage from "../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const EditCategory = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -121,7 +123,7 @@ const EditCategory = () => {
   return (
     <div className="add-card-form-page">
       <header className="form-header">
-        <h1 className="form-title-subcategory">Edit Category</h1>
+        <h1 className="form-title">Edit Category</h1>
       </header>
       <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
@@ -181,7 +183,7 @@ const EditCategory = () => {
               Cancel
             </button>
             <button type="submit" className="admin-submit-button" disabled={loading}>
-              Update
+               {loading ? <ClipLoader size={20} color="#fff" /> : "Update"}
             </button>
           </div>
         </form>

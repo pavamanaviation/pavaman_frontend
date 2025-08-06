@@ -6,6 +6,8 @@ import SuccessIcon from "../../assets/images/succes-icon.png";
 import PopupMessage from "../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const AddProduct = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -25,7 +27,9 @@ const AddProduct = () => {
         material_file: null,
     });
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isPageLoading, setIsPageLoading] = useState(true);
+
     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
     const [showPopup, setShowPopup] = useState(false);
 
@@ -44,6 +48,7 @@ const AddProduct = () => {
         if (!adminId) {
             displayPopup("Session expired. Please log in again.", "error");
             sessionStorage.clear();
+            setIsPageLoading(false);
             navigate("/admin-login");
         }
     }, [navigate]);
@@ -78,7 +83,7 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
         const admin_id = sessionStorage.getItem("admin_id");
 
@@ -127,11 +132,23 @@ const AddProduct = () => {
             setError("Network error, please try again");
             displayPopup(error, "Something went wrong. Please try again.", "error");
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
+
+    if (isPageLoading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="add-product-container">
+        <div className="edit-product-container">
             <h2 className="form-title-subcategory">Add Product</h2>
             <div className="admin-popup">
                 <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
@@ -150,7 +167,7 @@ const AddProduct = () => {
                     <label className="label">Product Name</label>
                     <input type="text" name="product_name" placeholder="Enter product name" onChange={handleChange} required className="input-field" />
                 </div>
-                <div className="input-row text-discount-row">
+                <div className="admin-input-row">
                     <div>
                         <label className="label">SKU</label>
                         <input type="text" name="sku_number" placeholder="Enter SKU number" onChange={handleChange} required className="input-field" />
@@ -164,7 +181,7 @@ const AddProduct = () => {
                         <input type="text" name="price" placeholder="Enter price" onChange={handleChange} required className="input-field" />
                     </div>
                 </div>
-                <div className="input-row text-discount-row">
+                <div className="admin-input-row ">
                     <div>
                         <label className="label">Quantity</label>
                         <input type="text" name="quantity" placeholder="Enter quantity" onChange={handleChange} required className="input-field" />
@@ -189,7 +206,7 @@ const AddProduct = () => {
                     </label>
                     <div className="upload-box">
                         {formData.product_images.length > 0 ? (
-                            <div className="success-icon">
+                            <div className="admin-success-icon">
                                 <img src={SuccessIcon} alt="Success Icon" className="success-icon-img" />
                                 <p>{formData.product_images.length} file(s) uploaded</p>
                             </div>
@@ -217,7 +234,7 @@ const AddProduct = () => {
                     </label>
                     <div className="upload-box">
                         {formData.material_file ? (
-                            <div className="success-icon">
+                            <div className="admin-success-icon">
                                 <img src={SuccessIcon} alt="Success Icon" className="success-icon-img" />
                                 <p>Successfully uploaded file</p>
                             </div>
@@ -238,9 +255,11 @@ const AddProduct = () => {
                         />
                     </div>
                 </div>
-                <div className="button-group">
+                <div className="form-actions">
                     <button type="button" className="admin-cancel-button" onClick={() => navigate(-1)}>Cancel</button>
-                    <button type="submit" className="admin-submit-button" disabled={loading}>Submit</button>
+                    <button type="submit" className="admin-submit-button" disabled={isLoading}>
+                        {isLoading ? <ClipLoader size={20} color="#ffffff" /> : "Submit"}
+                    </button>
                 </div>
             </form>
         </div>

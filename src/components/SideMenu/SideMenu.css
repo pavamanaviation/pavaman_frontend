@@ -30,13 +30,14 @@
 }
 
 .side-menu-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 250px;
-  transition: width 0.3s ease-in-out;
-  margin-left: 30px;
-  height: 100vh;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 250px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+    border-right: 2px solid #4450A2;
+    background: #fff;
 }
 
 .main-content {

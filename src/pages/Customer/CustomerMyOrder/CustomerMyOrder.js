@@ -5,6 +5,8 @@ import { FaCircleArrowRight } from "react-icons/fa6";
 import PopupMessage from "../../../components/Popup/Popup";
 import API_BASE_URL from "../../../config";
 import { Link } from "react-router-dom";
+import { ClipLoader } from 'react-spinners';
+import { FaLastfmSquare } from 'react-icons/fa';
 
 const CustomerMyOrders = () => {
   const [products, setProducts] = useState([]);
@@ -31,6 +33,8 @@ const CustomerMyOrders = () => {
   const [editFeedback, setEditFeedback] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10;
+  const [isLoading, setIsLoading] = useState(true);
+
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
     setShowPopup(true);
@@ -47,16 +51,17 @@ const CustomerMyOrders = () => {
 
   const fetchOrders = async () => {
     if (!customerId) {
-            displayPopup(
-                <>
-                    Please <Link to="/customer-login" className="popup-link">log in</Link> to view your cart.
-                </>,
-                "error"
-            );
-            return;
-        };
+      displayPopup(
+        <>
+          Please <Link to="/customer-login" className="popup-link">log in</Link> to view your cart.
+        </>,
+        "error"
+      );
+      return;
+    };
 
     try {
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/customer-my-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,9 +112,11 @@ const CustomerMyOrders = () => {
       }
     } catch (error) {
       setError("Fetch error: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchOrders();
   }, [customerId]);
@@ -120,6 +127,25 @@ const CustomerMyOrders = () => {
     }
   }, [products]);
 
+  if (isLoading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='error-message'>
+        <p>{error}</p>
+      </div>
+    );
+  };
+
   const goToOrderDetails = (product) => {
     navigate("/my-orders-details", {
       state: {
@@ -128,13 +154,7 @@ const CustomerMyOrders = () => {
       },
     });
   };
-  if (error) {
-    return (
-      <div className="error-message">
-        <p>{error}</p>
-      </div>
-    );
-  }
+
   const filterMyOrders = async (status = "", orderTime = "") => {
     const requestBody = {
       customer_id: customerId,
@@ -146,6 +166,7 @@ const CustomerMyOrders = () => {
       requestBody.shipping_status = "Shipped";
     }
     try {
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/filter-my-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -187,6 +208,7 @@ const CustomerMyOrders = () => {
         });
 
         setProducts(productsWithRatings);
+        setCurrentPage(1);
       } else if (response.status === 404) {
         setProducts([]);
       } else {
@@ -195,6 +217,8 @@ const CustomerMyOrders = () => {
     } catch (error) {
       console.error("Something went wrong!", error);
       displayPopup("Something went wrong while filtering orders.", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
   const handleStatusFilter = (status) => {
@@ -246,7 +270,7 @@ const CustomerMyOrders = () => {
       });
       const result = await response.json();
       if (response.ok) {
-        ;
+
         displayPopup("Thank you! Your review has been submitted.", "success");
         setProducts((prevProducts) =>
           prevProducts.map((p) =>
@@ -314,6 +338,8 @@ const CustomerMyOrders = () => {
   };
   const searchOrdersByProduct = async (term) => {
     try {
+      setIsLoading(true);
+
       const response = await fetch(`${API_BASE_URL}/customer-my-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -355,33 +381,32 @@ const CustomerMyOrders = () => {
           };
         });
         setProducts(productsWithRatings);
+        setCurrentPage(1);
       } else {
         setProducts([]);
         setError(data.error || "No results found.");
       }
     } catch (error) {
       setError("Search fetch error: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = products.slice(indexOfFirstOrder, indexOfLastOrder);
-  const paginate = pageNumber => {
-    setCurrentPage(pageNumber);
-    scrollToTop();
-  };
+
   const totalPages = Math.ceil(products.length / ordersPerPage);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
   return (
     <div className="my-orders-wrapper container">
       <div className="breadcrumb-order">
-        <span onClick={() => navigate("/")}>Home</span> 
+        <span onClick={() => navigate("/")}>Home</span>
         <span className="current-my-orders">My Orders</span>
       </div>
 
@@ -490,7 +515,6 @@ const CustomerMyOrders = () => {
                               ? "Shipped, Item will be delivered soon"
                               : "Order Placed. Item will be shipped soon"}
                         </p>
-                        {console.log(product.delivery_status, product.rating)}
 
                         {product.delivery_status === "Delivered" && product.rating && (
                           <div className="product-rating">
@@ -618,21 +642,46 @@ const CustomerMyOrders = () => {
               ))
             )}
           </div>
+          {products.length > 0 && (
+            <div className="pagination-container">
+              <button
+                className="first-button"
+                onClick={goToFirstPage}
+                disabled={currentPage === 1}
+              >
+                First
+              </button>
+
+              <button
+                className="previous-button"
+                onClick={prevPage}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+
+              <span>Page {currentPage} of {totalPages}</span>
+
+              <button
+                className="next-button"
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+
+              <button
+                className="last-button"
+                onClick={goToLastPage}
+                disabled={currentPage === totalPages}
+              >
+                Last
+              </button>
+            </div>
+          )}
         </section>
       </div>
-      <div className="pagination-myorder">
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Prev</button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => paginate(index + 1)}
-            className={currentPage === index + 1 ? 'active' : ''}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-      </div>
+
     </div>
   );
 

@@ -6,6 +6,8 @@ import "../EditSubCategory/EditSubCategory.css";
 import PopupMessage from "../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const EditSubcategory = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +24,7 @@ const EditSubcategory = () => {
   const [error, setError] = useState("");
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading]=  useState(false);
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
@@ -38,6 +41,7 @@ const EditSubcategory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const adminId = sessionStorage.getItem("admin_id");
 
     if (!adminId) {
@@ -47,6 +51,7 @@ const EditSubcategory = () => {
         </>,
         "error"
       );
+      setLoading(false);
       return;
     }
 
@@ -81,6 +86,8 @@ const EditSubcategory = () => {
       setError("An error occurred. Please try again.");
       displayPopup(error,"Something went wrong. Please try again.", "error");
 
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -132,7 +139,7 @@ const EditSubcategory = () => {
                 <p className="upload-text">
                   <span>Upload File</span> or Drag and Drop
                 </p>
-                <p className="upload-text-mb">Up to 20MB</p>
+               
               </>
             )}
             <input
@@ -150,7 +157,7 @@ const EditSubcategory = () => {
             Cancel
           </button>
           <button type="submit"  className="admin-submit-button">
-            Update 
+             {loading ? <ClipLoader size={20} color="#fff" /> : "Update"} 
           </button>
         </div>
       </form>

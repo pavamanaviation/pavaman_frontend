@@ -1,4 +1,4 @@
-import{ useEffect, useState } from "react";
+import{ useEffect, useState, useRef } from "react";
 import EditAddress from "../CustomerEditAddress/CustomerEditAddress";
 import "../CustomerViewAddress/CustomerViewAddress.css";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -15,7 +15,7 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
     const customerId = localStorage.getItem("customer_id");
-
+    const menuRef = useRef(null);
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
@@ -24,6 +24,18 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
             setShowPopup(false);
         }, 10000);
     };
+
+        useEffect(() => {
+        function handleClickOutside(event) {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuOpenFor(null);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const fetchAddresses = async () => {
         try {
@@ -145,6 +157,10 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
         }
     };
 
+       const handleMenuToggle = (addressId) => {
+        setMenuOpenFor((prev) => (prev === addressId ? null : addressId));
+    };
+
     return (
         <div className="address-list container">
             <h3 className="address-heading">Delivery Address</h3>
@@ -210,12 +226,10 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
 
                             </div>
                             {!isAddOpen && (
-                                <div className="menu-container">
+                                <div className="menu-container"  ref={menuRef}>
                                     <BsThreeDotsVertical
                                         className="menu-icon"
-                                        onClick={() =>
-                                            setMenuOpenFor(menuOpenFor === address.address_id ? null : address.address_id)
-                                        }
+                                       onClick={() => handleMenuToggle(address.address_id)}
                                     />
                                     {menuOpenFor === address.address_id && (
                                         <div className="manage-edit-menu-dropdown">

@@ -19,6 +19,7 @@
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
 }
 .cart-item {
     display: flex;
@@ -248,4 +249,12 @@
     .image-quantity-section {
         flex-direction: column;
     }
+}
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
 }

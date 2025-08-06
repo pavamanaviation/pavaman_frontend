@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import "./AdminCustomerDashboard.css";
 import { FaUserCheck, FaUserTimes, FaUsers } from "react-icons/fa";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const Customer = () => {
     const [customers, setCustomers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [activatedCount, setActivatedCount] = useState(0);
@@ -42,7 +44,7 @@ const Customer = () => {
                 console.error("Error fetching customers:", error);
                 setError("Something went wrong while fetching customers.");
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
@@ -84,9 +86,45 @@ const Customer = () => {
     const currentCustomers = customers.slice(indexOfFirstCustomer, indexOfLastCustomer);
     const totalPages = Math.ceil(customers.length / customersPerPage);
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const goToFirstPage = () => setCurrentPage(1);
+    const goToLastPage = () => setCurrentPage(totalPages);
     const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
     const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
+    const formatMobileNumber = (mobileNo) => {
+        if (!mobileNo) return '';
+        
+        const digitsOnly = mobileNo.replace(/\D/g, '');
+        
+        
+        if (digitsOnly.startsWith('91') && digitsOnly.length === 12) {
+            return `+91 ${digitsOnly.substring(2)}`;
+        }
+        
+        else if (digitsOnly.length === 10) {
+            return `+91 ${digitsOnly}`;
+        }
+        
+        else if (digitsOnly.length > 10) {
+            const countryCode = digitsOnly.substring(0, digitsOnly.length - 10);
+            const mainNumber = digitsOnly.substring(digitsOnly.length - 10);
+            return `+${countryCode} ${mainNumber}`;
+        }
+    
+        return mobileNo;
+    };
+
+    if (isLoading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -111,10 +149,7 @@ const Customer = () => {
             <div className="recent-orders">
                 <h3>Customer List</h3>
                 {error && <p className="error-message">{error}</p>}
-                {loading ? (
-                    <p className="loading-text">Loading, please wait...</p>
-                ) : (
-                    <>
+           
                         <div className="customer-table-container">
                             <table className="customer-table">
                                 <thead>
@@ -132,8 +167,8 @@ const Customer = () => {
                                         <tr key={customer.id}>
                                             <td>{indexOfFirstCustomer + index + 1}</td>
                                             <td>{`${customer.first_name} ${customer.last_name}`}</td>
-                                            <td>{customer.email}</td>
-                                            <td>{customer.mobile_no}</td>
+                                            <td className="admin-mail">{customer.email.toLoweCase()}</td>
+                                            <td>{formatMobileNumber(customer.mobile_no)}</td>
                                             <td>{customer.register_type}</td>
                                             <td>
                                                 <button
@@ -149,46 +184,41 @@ const Customer = () => {
                             </table>
                         </div>
 
-                        <div className="pagination-container">
-                            <span>Page {currentPage} of {totalPages}</span>
-                            <button className="previous-button" onClick={prevPage} disabled={currentPage === 1}>PREVIOUS</button>
+                   <div className="pagination-container">
+                    <button 
+                        className="first-button" 
+                        onClick={goToFirstPage} 
+                        disabled={currentPage === 1}
+                    >
+                        First
+                    </button>
+                    
+                    <button 
+                        className="previous-button" 
+                        onClick={prevPage} 
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </button>
 
-                            {currentPage > 3 && (
-                                <>
-                                    <button onClick={() => paginate(1)}>1</button>
-                                    <span>...</span>
-                                </>
-                            )}
+                    <span>Page {currentPage} of {totalPages}</span>
 
-                            {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                .filter(page =>
-                                    page === currentPage ||
-                                    page === currentPage - 1 ||
-                                    page === currentPage - 2 ||
-                                    page === currentPage + 1 ||
-                                    page === currentPage + 2
-                                )
-                                .map(page => (
-                                    <button
-                                        key={page}
-                                        onClick={() => paginate(page)}
-                                        className={page === currentPage ? "active-page" : ""}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                    <button 
+                        className="next-button" 
+                        onClick={nextPage} 
+                        disabled={currentPage === totalPages}
+                    >
+                        Next
+                    </button>
 
-                            {currentPage < totalPages - 2 && (
-                                <>
-                                    <span>...</span>
-                                    <button onClick={() => paginate(totalPages)}>{totalPages}</button>
-                                </>
-                            )}
-
-                            <button className="next-button" onClick={nextPage} disabled={currentPage === totalPages}>NEXT</button>
-                        </div>
-                    </>
-                )}
+                    <button 
+                        className="last-button" 
+                        onClick={goToLastPage} 
+                        disabled={currentPage === totalPages}
+                    >
+                        Last
+                    </button>
+                </div>
             </div>
         </>
     );

@@ -20,7 +20,7 @@ const AddCustomerAddress = ({ onAddressAdded }) => {
         district: "",
         street: "",
         mandal: "",
-        addressType: "home",
+        address_type: "home",
     });
 
     const [loading, setLoading] = useState(false);
@@ -216,11 +216,11 @@ const AddCustomerAddress = ({ onAddressAdded }) => {
                     <div className="edit-manage-address-type address-space">
                         <label>Address Type</label>
                         <label>
-                            <input type="radio" name="addressType" value="home" checked={formData.addressType === "home"} onChange={handleChange} />
+                            <input type="radio" name="address_type" value="home" checked={formData.address_type === "home"} onChange={handleChange} />
                             Home
                         </label>
                         <label>
-                            <input type="radio" name="addressType" value="work" checked={formData.addressType === "work"} onChange={handleChange} />
+                            <input type="radio" name="address_type" value="work" checked={formData.address_type === "work"} onChange={handleChange} />
                             Work (10AM–6PM)
                         </label>
                     </div>

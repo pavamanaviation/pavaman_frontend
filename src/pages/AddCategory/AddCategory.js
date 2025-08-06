@@ -7,16 +7,20 @@ import SuccessMessageImage from "../../assets/images/success-message.svg";
 import PopupMessage from "../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const AddCategory = () => {
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isImageUploaded, setIsImageUploaded] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); 
   const [successMessage, setSuccessMessage] = useState("");
+  const [isPageLoading, setIsPageLoading] = useState(true); 
   const navigate = useNavigate();
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
     setShowPopup(true);
@@ -24,15 +28,17 @@ const AddCategory = () => {
       setShowPopup(false);
     }, 10000);
   };
+
   useEffect(() => {
     const adminId = sessionStorage.getItem("admin_id");
-
     if (!adminId) {
       displayPopup("Session expired. Please log in again.", "error");
       sessionStorage.clear();
       navigate("/admin-login");
     }
+    setIsPageLoading(false); 
   }, [navigate]);
+
   const handleFileChange = (e) => {
     if (e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -41,6 +47,7 @@ const AddCategory = () => {
     setIsImageUploaded(true);
     e.target.value = "";
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const adminId = sessionStorage.getItem("admin_id");
@@ -61,7 +68,7 @@ const AddCategory = () => {
       displayPopup("Please upload image.", "error");
       return;
     }
-    setLoading(true);
+    setIsLoading(true); 
     const formData = new FormData();
     formData.append("admin_id", adminId);
     formData.append("category_name", name);
@@ -85,14 +92,27 @@ const AddCategory = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      displayPopup(error, "Something went wrong. Please try again.", "error");
+      displayPopup("Something went wrong. Please try again.", "error");
     } finally {
-      setLoading(false);
+      setIsLoading(false); 
     }
   };
+
   const handleCancel = () => {
     navigate("/view-categories");
   };
+
+  if (isPageLoading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="add-card-form-page">
       <div className="admin-popup">
@@ -160,8 +180,8 @@ const AddCategory = () => {
             <button type="button" onClick={handleCancel} className="admin-cancel-button">
               Cancel
             </button>
-            <button type="submit" className="admin-submit-button" disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+            <button type="submit" className="admin-submit-button" disabled={isLoading}>
+              {isLoading ? <ClipLoader size={20} color="#ffffff" /> : "Submit"}
             </button>
           </div>
         </form>

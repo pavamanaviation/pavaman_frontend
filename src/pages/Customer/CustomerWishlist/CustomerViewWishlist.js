@@ -5,6 +5,7 @@ import PopupMessage from "../../../components/Popup/Popup";
 import "./CustomerViewWishlist.css";
 import { BiSolidCartAdd } from "react-icons/bi";
 import { useNavigate, Link } from "react-router-dom";
+import { ClipLoader } from "react-spinners";
 
 const ViewWishlist = () => {
     const [wishlist, setWishlist] = useState([]);
@@ -23,6 +24,39 @@ const ViewWishlist = () => {
             setShowPopup(false);
         }, 10000);
     };
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [screenSize, setScreenSize] = useState({
+        width: window.innerWidth,
+        productsPerRow: calculateProductsPerRow(window.innerWidth)
+    });
+    const rowsPerPage = 2;
+    const productsPerPage = screenSize.productsPerRow * rowsPerPage;
+
+    function calculateProductsPerRow(width) {
+        if (width >= 1920) return 6;
+        if (width >= 1440) return 5;
+        if (width >= 1200) return 4;
+        if (width >= 992) return 3;
+        if (width >= 768) return 2;
+        return 1;
+    }
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenSize({
+                width,
+                productsPerRow: calculateProductsPerRow(width)
+            });
+            setCurrentPage(1);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+
 
     useEffect(() => {
         const fetchWishlist = async () => {
@@ -58,6 +92,16 @@ const ViewWishlist = () => {
         }
     }, [customerId]);
 
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = wishlist.slice(indexOfFirstProduct, indexOfLastProduct);
+    const totalPages = Math.ceil(wishlist.length / productsPerPage);
+
+    const goToFirstPage = () => setCurrentPage(1);
+    const goToLastPage = () => setCurrentPage(totalPages);
+    const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
     const handleAddCart = async (productId) => {
         try {
             const response = await axios.post(`${API_BASE_URL}/add-cart-product`, {
@@ -74,29 +118,39 @@ const ViewWishlist = () => {
             displayPopup("Error adding to cart.", "error");
         }
     };
-const handleViewProductDetails = (product) => {
-    const category_id = product.category_id;
-    const sub_category_id = product.subcategory_id;
-    const categoryName = product.category_name;
-    const subCategoryName = product.subcategory_name;
 
-    localStorage.setItem("category_id", category_id);
-    localStorage.setItem("sub_category_id", sub_category_id);
-    localStorage.setItem("category_name", categoryName);
-    localStorage.setItem("sub_category_name", subCategoryName);
-    localStorage.setItem("product_name", product.product_name);
+    const handleViewProductDetails = (product) => {
+        const category_id = product.category_id;
+        const sub_category_id = product.subcategory_id;
+        const categoryName = product.category_name;
+        const subCategoryName = product.subcategory_name;
 
-    navigate(`/product-details/${categoryName}/${subCategoryName}/${product.product_id}`, {
-        state: {
-            category_name: categoryName,
-            sub_category_name: subCategoryName,
-            product_name: product.product_name,
-        },
-    });
-};
+        localStorage.setItem("category_id", category_id);
+        localStorage.setItem("sub_category_id", sub_category_id);
+        localStorage.setItem("category_name", categoryName);
+        localStorage.setItem("sub_category_name", subCategoryName);
+        localStorage.setItem("product_name", product.product_name);
+
+        navigate(`/product-details/${categoryName}/${subCategoryName}/${product.product_id}`, {
+            state: {
+                category_name: categoryName,
+                sub_category_name: subCategoryName,
+                product_name: product.product_name,
+            },
+        });
+    };
 
 
-    if (loading) return <div>Loading wishlist...</div>;
+    if (loading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -116,8 +170,8 @@ const handleViewProductDetails = (product) => {
                 )}
 
                 <div className="customer-products-section">
-                    {wishlist.length > 0 ? (
-                        wishlist.map((product) => (
+                    {currentProducts.length > 0 ? (
+                        currentProducts.map((product) => (
                             <div
                                 key={product.product_id}
                                 className="customer-product-card"
@@ -161,22 +215,59 @@ const handleViewProductDetails = (product) => {
 
                                         {(product.availability === "Very Few Products Left" ||
                                             product.availability === "In Stock") && (
-                                            <BiSolidCartAdd
-                                                className="add-to-cart-button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleAddCart(product.product_id);
-                                                }}
-                                            />
-                                        )}
+                                                <BiSolidCartAdd
+                                                    className="add-to-cart-button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddCart(product.product_id);
+                                                    }}
+                                                />
+                                            )}
                                     </div>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div>No products in your wishlist.</div>
+                        <div className="no-products-message">No products in your wishlist.</div>
                     )}
                 </div>
+                {wishlist.length > productsPerPage && (
+                    <div className="pagination-container">
+                        <button
+                            className="first-button"
+                            onClick={goToFirstPage}
+                            disabled={currentPage === 1}
+                        >
+                            First
+                        </button>
+
+                        <button
+                            className="previous-button"
+                            onClick={prevPage}
+                            disabled={currentPage === 1}
+                        >
+                            Previous
+                        </button>
+
+                        <span>Page {currentPage} of {totalPages}</span>
+
+                        <button
+                            className="next-button"
+                            onClick={nextPage}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </button>
+
+                        <button
+                            className="last-button"
+                            onClick={goToLastPage}
+                            disabled={currentPage === totalPages}
+                        >
+                            Last
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

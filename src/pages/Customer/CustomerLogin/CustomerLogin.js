@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "../CustomerLogin/CustomerLogin.css";
 import Logo from "../../../assets/images/DK mail logo.svg";
 import LogInImage from "../../../assets/images/login image.jpg";
-import { FaEye, FaEyeSlash, FaInfoCircle } from "react-icons/fa";
+import { FaEye, FaEyeSlash,FaInfoCircle } from "react-icons/fa";
 import PhoneInput from "react-phone-input-2";
 import { useLocation } from "react-router-dom";
 import PopupMessage from "../../../components/Popup/Popup";
@@ -419,7 +419,6 @@ const CustomerLogin = ({ setCustomerAuthenticated }) => {
                             className="customer-login-password-toggle-btn"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
                     <div className="forgot-password" onClick={() => setShowForgotPasswordPopup(true)}>
@@ -546,7 +545,7 @@ const CustomerLogin = ({ setCustomerAuthenticated }) => {
                                 placeholder="Confirm Password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="customer-login-input-field customer-login-password-input"
+                                className="customer-login-input-field-set-password customer-login-password-input"
                             />
                             <span
                                 className="customer-login-password-toggle-btn-set"

@@ -5,6 +5,8 @@ import { FaCircleArrowRight } from "react-icons/fa6";
 import { MdCloudDownload } from "react-icons/md";
 import generateInvoicePDF from '../CustomerInvoice/CustomerInvoice';
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from 'react-spinners';
+
 const CustomerMyOrderDetails = () => {
   const [orderDetails, setOrderDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,17 @@ const CustomerMyOrderDetails = () => {
     }
   };
 
-  if (loading) return <div className="order-loader">Loading...</div>;
+      if (loading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
   if (!orderDetails.length) return <div className="order-loader"><p>No orders found.</p></div>;
 
   const orderHasMultipleProducts = order?.order_products?.length > 1;

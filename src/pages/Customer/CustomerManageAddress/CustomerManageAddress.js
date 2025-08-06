@@ -1,4 +1,4 @@
-import{ useState, useEffect } from "react";
+import{ useState, useEffect ,useRef } from "react";
 import CustomerManageAddAddress from "../CustomerManageAddAddress/CustomerManageAddAddress";
 import CustomerManageEditAddress from "../CustomerManageEditAddress/CustomerManageEditAddress";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -14,7 +14,7 @@ const ManageCustomerAddress = ({ refresh }) => {
     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
     const [showPopup, setShowPopup] = useState(false);
     const customerId = localStorage.getItem("customer_id");
-
+    const menuRef = useRef(null);
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
@@ -23,6 +23,18 @@ const ManageCustomerAddress = ({ refresh }) => {
             setShowPopup(false);
         }, 10000);
     };
+
+      useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setSelectedMenu(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const fetchAddresses = async () => {
         if (!customerId) return;
@@ -129,14 +141,10 @@ const ManageCustomerAddress = ({ refresh }) => {
                                     <span className="manage-address-type">
                                         {address.address_type?.toUpperCase() || "UNKNOWN"}
                                     </span>
-                                    <div className="manage-menu-container">
+                                    <div className="manage-menu-container" ref={menuRef}>
                                         <BsThreeDotsVertical
                                             className="manage-menu-icon"
-                                            onClick={() =>
-                                                setSelectedMenu(
-                                                    selectedMenu === address.address_id ? null : address.address_id
-                                                )
-                                            }
+                                             onClick={() => setSelectedMenu(prev => prev === address.address_id ? null : address.address_id)}
                                         />
                                         {selectedMenu === address.address_id && (
                                             <div className="manage-menu-dropdown">

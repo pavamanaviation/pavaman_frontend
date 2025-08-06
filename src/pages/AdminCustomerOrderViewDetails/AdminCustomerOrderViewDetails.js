@@ -4,12 +4,15 @@ import axios from 'axios';
 import "./AdminCustomerOrderViewDetails.css";
 import PopupMessage from "../../components/Popup/Popup";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from 'react-spinners';
+
 const PaidOrderDetails = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [productStatuses, setProductStatuses] = useState({});
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+cosnt [isloading, setIsLoading] = useState(true);
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
@@ -20,6 +23,7 @@ const PaidOrderDetails = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
+        setIsLoading(true);
         const adminId = sessionStorage.getItem("admin_id");
         const response = await axios.post(
           `${API_BASE_URL}/get-payment-details-by-order`,
@@ -48,6 +52,10 @@ const PaidOrderDetails = () => {
         }
       } catch (error) {
         console.error("Error fetching order details:", error);
+        displayPopup("Failed to load order details", "error");
+
+      }finally{
+        setIsLoading(false);
       }
     };
 
@@ -132,7 +140,18 @@ const PaidOrderDetails = () => {
   const allshipped = Object.values(productStatuses).every(s => s.shipped);
   const allDelivered = Object.values(productStatuses).every(s => s.delivered);
 
-  if (!order) return <div className="loading">Loading,Please wait...</div>;
+  if (isloading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+  if (!order) return <div className="error-message">Order not found</div>;
 
   const {
     customer_name,
@@ -177,8 +196,11 @@ const PaidOrderDetails = () => {
       </div>
 
       <div className="product-details-table">
+        <div className='product-details-table-heading'>
+
         <h3>Payment Order Details</h3>
         <h3 className='product_order-id'>Product Order ID: {order?.product_order_id}</h3>
+        </div>
 
         {order_products?.length ? (
           <table>

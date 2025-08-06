@@ -63,6 +63,7 @@ body {
     display: block;
     margin: 0 auto;
     width: 120px;
+    cursor: pointer;
 }
 
 .customer-discount-product-name {
@@ -95,6 +96,7 @@ body {
     text-align: left;
     margin: 16px auto;
     text-align: center !important;
+    font-size: 18px;
 }
 
 .customer-discount-section-price {
@@ -441,4 +443,12 @@ body {
     .single-discount-product-wrapper .customer-discount-product-card {
         max-width: 80%;
     }
+}
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
 }

@@ -273,8 +273,8 @@
 }
 .manage-menu-dropdown {
     position: absolute;
-    top: 45px;
-    right: 0;
+    top: 54px;
+    right: 8px;
     background-color: #dbe4ff;
     border-radius: 16px;
     padding: 8px;

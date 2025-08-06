@@ -4,6 +4,8 @@ import "./CustomerManageAddAddress.css";
 import PhoneInput from "react-phone-input-2";
 import PopupMessage from "../../../components/Popup/Popup";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
+
 const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => {
     const [formData, setFormData] = useState({
         first_name: "",
@@ -18,7 +20,7 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
         landmark: "",
         email: "",
         mandal: "",
-        addressType: "home",
+        address_type: "home",
     });
     const customer_id = localStorage.getItem("customer_id");
 
@@ -121,7 +123,7 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
             const response = await fetch(`${API_BASE_URL}/add-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id,...formData, mobile_number: `+${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `+${formData.alternate_mobile}` : "" }),
+                body: JSON.stringify({ customer_id, ...formData, mobile_number: `+${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `+${formData.alternate_mobile}` : "" }),
             });
 
             const data = await response.json();
@@ -141,7 +143,7 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
                     landmark: "",
                     email: "",
                     mandal: "",
-                    addressType: "home",
+                    address_type: "home",
                 });
                 setTimeout(onAddressAdded, 3000);
             } else {
@@ -195,8 +197,8 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
                                 placeholder="Mobile Number"
                                 required
                             />
-                            </div>
-                            
+                        </div>
+
                         <div className="manage-input-group">
                             <label>Alternate Mobile</label>
                             <PhoneInput
@@ -250,18 +252,22 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
                         <div className="address-space">
                             <label>Address Type</label>
                             <label className="manage-radio-button">
-                                <input className="radio-btn" type="radio" name="addressType" value="home" checked={formData.addressType === "home"} onChange={handleChange} />
+                                <input className="radio-btn" type="radio" name="address_type" value="home" checked={formData.address_type === "home"} onChange={handleChange} />
                                 Home
                             </label>
                             <label>
-                                <input className="radio-btn" type="radio" name="addressType" value="work" checked={formData.addressType === "work"} onChange={handleChange} />
+                                <input className="radio-btn" type="radio" name="address_type" value="work" checked={formData.address_type === "work"} onChange={handleChange} />
                                 Work&nbsp;(10AM–6PM)
                             </label>
                         </div>
                     </div>
                     <div className="cart-actions">
                         <button type="submit" className="cart-place-order" disabled={isSaveDisabled}>
-                            {loading ? "Saving..." : "SAVE"}
+                            {loading ? (
+                                <ClipLoader size={20} color="#ffffff" />
+                            ) : (
+                                "SAVE"
+                            )}
                         </button>
                         <button type="button" className="cart-delete-selected" onClick={handleCancel}>
                             CANCEL

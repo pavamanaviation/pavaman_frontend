@@ -1,4 +1,4 @@
-import{ useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../SignIn/Signin.css";
@@ -6,6 +6,7 @@ import Logo from "../../assets/images/DK mail logo.svg";
 import LogInImage from "../../assets/images/login image.jpg";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import API_BASE_URL from "../../config";
+import { IoClose } from "react-icons/io5";
 
 const SignIn = ({ setIsAuthenticated }) => {
   const [email, setEmail] = useState("");
@@ -57,7 +58,7 @@ const SignIn = ({ setIsAuthenticated }) => {
       showPopup("Please enter the OTP.", "error");
       return;
     }
-  
+
     try {
       const verifyResponse = await axios.post(
         `${API_BASE_URL}/admin-verify-otp`,
@@ -66,37 +67,36 @@ const SignIn = ({ setIsAuthenticated }) => {
           otp,
         }
       );
-  
+
       const { status_code, error, id } = verifyResponse.data;
-  
+
       if (status_code === 200) {
         showPopup("OTP Verified Successfully!", "success");
         setIsAuthenticated(true);
-  
+
         sessionStorage.setItem("adminData", JSON.stringify(verifyResponse.data));
         sessionStorage.setItem("admin_id", id);
         navigate("/admin/dashboard");
       } else {
         const errorMessage = error || "OTP verification failed.";
         showPopup(errorMessage, "error");
-        setOtp(""); 
-
+        setOtp("");
       }
     } catch (err) {
       const message =
         err.response?.data?.error || "Something went wrong during OTP verification.";
       showPopup(message, "error");
-      setOtp(""); 
+      setOtp("");
     }
   };
   return (
-    <div className="login-container">
-      <div className="login-form-section">
+    <div className="customer-login-container">
+      <div className="customer-login-form-section">
         <div>
-          <img src={Logo} className="login-logo" alt="Logo" />
+          <img src={Logo} className="customer-login-logo" alt="Logo" />
         </div>
 
-        <div className="login-text">Login</div>
+        <div className="customer-login-text">Login</div>
         <div className="login-form-info">Fill the fields below to continue.</div>
 
         <div className="sign-in-popup">
@@ -108,23 +108,25 @@ const SignIn = ({ setIsAuthenticated }) => {
           )}
         </div>
 
-        <div className="login-form-fields">
-          <label className="email-label">Email</label>
+        <div className="customer-login-form-fields">
+          <label className="customer-login-label">Email<span className="required-star">*</span></label>
           <input
             type="email"
-            className="login-input-field"
+            className="customer-login-input-field"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        <div className="login-form-fields">
-          <label className="password-label">Password</label>
+        <div className="customer-login-form-fields" >
+          <label className="customer-login-label">
+            Password<span className="required-star">*</span></label>
           <div className="password-input-wrapper">
             <input
               type={showPassword ? "text" : "password"}
-              className="login-input-field password-input"
+              className="customer-login-input-field customer-login-password-input"
+
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -138,23 +140,30 @@ const SignIn = ({ setIsAuthenticated }) => {
           </div>
         </div>
 
-        <div className="login-wrapper">
-          <button className="login-btn" onClick={handleSignIn}>
-            <p className="login-btn-text">Login</p>
+        <div className="customer-login-wrapper">
+
+          <button className="customer-login-btn" onClick={handleSignIn}>
+            <p className="customer-login-btn-text">Login</p>
+
           </button>
         </div>
       </div>
-
-      <div className="login-image-section">
-        <div className="image-text">
-             “Let's Your Vision Take Flight.”
+      <div className="customer-login-image-section">
+        <div className="customer-login-image-text">
+          “Let's Your Vision Take Flight.”
         </div>
-        <img className="login-image" alt="Sign In" src={LogInImage} />
+        <img className="customer-login-image" alt="Sign In" src={LogInImage} />
       </div>
 
       {isOtpStep && (
         <div className="otp-popup">
           <div className="otp-popup-content">
+
+            <IoClose
+              className="otp-close-icon"
+              onClick={() => setIsOtpStep(false)}
+            />
+
             <div className="otp-popup-heading">Enter OTP</div>
             <div className="otp-popup-input-field">
               <input

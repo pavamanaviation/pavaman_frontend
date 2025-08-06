@@ -8,6 +8,7 @@ import CarouselLanding from "../CustomerCarousel/CustomerCarousel";
 import "./CustomerViewProducts.css";
 import API_BASE_URL from "../../../config";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import { ClipLoader } from "react-spinners";
 
 const CustomerViewProducts = () => {
     const { categoryName, subCategoryName } = useParams();
@@ -343,6 +344,18 @@ const CustomerViewProducts = () => {
             displayPopup("An error occurred while adding to wishlist.", "error");
         }
     };
+
+    if (loading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="customer-dashboard container">
             < CarouselLanding />

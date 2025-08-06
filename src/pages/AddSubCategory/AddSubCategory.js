@@ -7,6 +7,8 @@ import SuccessMessageImage from "../../assets/images/success-message.svg";
 import PopupMessage from "../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const AddSubCategory = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,7 +17,9 @@ const AddSubCategory = () => {
   const [subCategoryImage, setSubCategoryImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null); 
   const [isImageUploaded, setIsImageUploaded] = useState(false); 
-  const [loading, setLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false); 
+  const [isPageLoading, setIsPageLoading] = useState(true); 
+
   const [successMessage, setSuccessMessage] = useState(""); 
  const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
@@ -33,6 +37,7 @@ const AddSubCategory = () => {
     if (!adminId) {
       displayPopup("Session expired. Please log in again.", "error");
       sessionStorage.clear();
+      setIsPageLoading(false);
       navigate("/admin-login");
     }
   }, [navigate]);
@@ -64,7 +69,7 @@ const AddSubCategory = () => {
       displayPopup("Please upload image.", "error");
       return;
     }
-    setLoading(true);
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("admin_id", adminId);
     formData.append("category_id", category_id);
@@ -94,17 +99,29 @@ const AddSubCategory = () => {
       displayPopup(error,"Something went wrong. Please try again.", "error");
 
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
   const handleCancel = () => {
     navigate("/view-subcategories", { state: { category_id, category_name } });
   };
+
+  if (isPageLoading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
   return (
     <div className="add-card-form-page">
       
       <header className="form-header">
-        <h1 className="form-title-subcategory">Subcategory Details</h1>
+        <h1 className="form-title">Subcategory Details</h1>
         <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
       </div>
@@ -168,7 +185,7 @@ const AddSubCategory = () => {
               Cancel
             </button>
             <button type="submit" className="admin-submit-button" disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+                 {isLoading ? <ClipLoader size={20} color="#ffffff" /> : "Submit"}
             </button>
           </div>
         </form>

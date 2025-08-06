@@ -8,6 +8,13 @@
   margin-bottom: 20px;
   color: #333;
 }
+
+.report-title-heading{
+  font-size: 28px;
+  font-weight: 600;
+  color: #4450A2;
+  text-align: left;
+}
 .report-table-container {
   overflow-x: auto;
 }
@@ -26,7 +33,6 @@
   border-bottom: 2px solid #ddd;
 }
 .report-table td {
-  padding: 12px 10px;
   border-bottom: 1px solid #f0f0f0;
   color: #333;
   text-align: left;
@@ -111,4 +117,51 @@ padding: 6px 12px;
 .customer-order-date-name{
   text-align: start;
   text-transform: capitalize;
+}
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
+}
+
+.first-button,
+.last-button {
+  background-color: #4450A2;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.first-button:hover,
+.last-button:hover {
+  background-color: #2e3a7e;
+}
+
+.first-button:disabled,
+.last-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+
+.pagination-container span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4450A2;
+  margin: 0 15px;
 }

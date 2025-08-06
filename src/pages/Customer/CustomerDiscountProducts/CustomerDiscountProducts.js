@@ -9,6 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import API_BASE_URL from "../../../config";
 import PopupMessage from "../../../components/Popup/Popup";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import { ClipLoader } from "react-spinners";
 
 const ViewDiscountedProducts = ({ slidesToShow = 5 }) => {
     const navigate = useNavigate();
@@ -36,6 +37,7 @@ const ViewDiscountedProducts = ({ slidesToShow = 5 }) => {
 
     const fetchData = async () => {
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -97,41 +99,41 @@ const ViewDiscountedProducts = ({ slidesToShow = 5 }) => {
         }
     };
 
-const sliderSettings = {
-    infinite: true,
-    speed: 1000,
-    slidesToShow,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    pauseOnHover: true,
-    responsive: [
-        {
-            breakpoint: 1440,
-            settings: {
-                slidesToShow: Math.min(slidesToShow, 5),
+    const sliderSettings = {
+        infinite: true,
+        speed: 1000,
+        slidesToShow,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        pauseOnHover: true,
+        responsive: [
+            {
+                breakpoint: 1440,
+                settings: {
+                    slidesToShow: Math.min(slidesToShow, 5),
+                },
             },
-        },
-        {
-            breakpoint: 1024,
-            settings: {
-                slidesToShow: Math.min(slidesToShow, 4),
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: Math.min(slidesToShow, 4),
+                },
             },
-        },
-        {
-            breakpoint: 768,
-            settings: {
-                slidesToShow: Math.min(slidesToShow, 3),
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: Math.min(slidesToShow, 3),
+                },
             },
-        },
-        {
-            breakpoint: 480,
-            settings: {
-                slidesToShow: Math.min(slidesToShow, 2),
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: Math.min(slidesToShow, 2),
+                },
             },
-        },
-    ],
-};
+        ],
+    };
 
 
     const handleViewProductDetails = (product) => {
@@ -139,7 +141,7 @@ const sliderSettings = {
             displayPopup("Category or Subcategory ID is missing.", "error");
             return;
         }
-                localStorage.setItem("category_id", product.category_id );
+        localStorage.setItem("category_id", product.category_id);
         localStorage.setItem("sub_category_id", product.sub_category_id);
         localStorage.setItem("category_name", product.category_name);
         localStorage.setItem("sub_category_name", product.sub_category_name);
@@ -221,13 +223,13 @@ const sliderSettings = {
             <div className="customer-product-name customer-discount-section-name">
                 {product.product_name}
             </div>
-        <div className="customer-discount-section-price">
-    ₹{parseFloat(product.final_price).toFixed(2)} (incl. GST)
-</div>
+            <div className="customer-discount-section-price">
+                ₹{parseFloat(product.final_price).toFixed(2)} (incl. GST)
+            </div>
 
             <div>
                 <div className="customer-discount-section-original-price">
-                       ₹{parseFloat(product.price).toFixed(2)} (incl. GST)
+                    ₹{parseFloat(product.price).toFixed(2)} (incl. GST)
                     <div className="discount-tag">
                         {product.discount && `${product.discount} off`}
                     </div>
@@ -261,12 +263,22 @@ const sliderSettings = {
         </div>
     );
 
+    if (isLoading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="customer-dashboard container discount-dashboard">
-            {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
 
-            {!loading && !error && (
+            {!error && (
                 <div className="customer-products">
                     <div className="customer-products-heading">Discounted Products</div>
                     <div className="popup-discount">

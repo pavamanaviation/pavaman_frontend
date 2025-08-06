@@ -242,8 +242,6 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
     return (
         <div className="customer-dashboard container">
             <CarouselLanding />
-            {loading && <p>Loading...</p>}
-            {error && <p>{error}</p>}
 
             {!loading && !error && (
                 <div className="breadcrumb">

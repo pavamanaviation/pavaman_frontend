@@ -1,15 +1,16 @@
-import{ useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AdminInventory.css';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from "../../config";
 import PopupMessage from "../../components/Popup/Popup";
+import { ClipLoader } from 'react-spinners';
+
 const AdminInventoryProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const adminId = sessionStorage.getItem("admin_id");
@@ -23,10 +24,10 @@ const AdminInventoryProducts = () => {
     }, 10000);
   };
   useEffect(() => {
-    fetchDiscountProducts();
+    fetchInventoryProducts();
   }, []);
 
-  const fetchDiscountProducts = async () => {
+  const fetchInventoryProducts = async () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/product-discount-inventory-view`, {
         admin_id: adminId,
@@ -36,14 +37,15 @@ const AdminInventoryProducts = () => {
       if (response.data.status_code === 200 && response.data.products) {
         setProducts(response.data.products);
       } else {
-        setError(response.data.message || 'No discounted products found.');
+        setError(response.data.message || 'No inventory products found.');
+        displayPopup(response.data.message || 'No inventory products found.', "error");
       }
     } catch (err) {
       setError('Failed to fetch products.');
       displayPopup('Failed to fetch products.', "error");
 
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -72,25 +74,37 @@ const AdminInventoryProducts = () => {
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
+  if (isLoading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="recent-orders">
       <div className="discount-header">
         <h3>Sold Quantity Products Details</h3>
-        <div className="discount-buttons">
+        <div className="discount-buttons admin-rating-buttons">
           <button onClick={downloadExcel}>Download Excel</button>
         </div>
       </div>
 
-     <div className="admin-popup">
+      <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
       </div>
       {error && <p className="error-message">{error}</p>}
-      {loading ? (
-        <p className="loading-text">Loading, Please wait...</p>
-      ) : (
+      {!isLoading && (
+
         <>
           <div className="customer-table-container">
             <table className="customer-table">
@@ -103,8 +117,8 @@ const AdminInventoryProducts = () => {
                   <th>Product Name</th>
                   <th>SKU</th>
                   <th>HSN</th>
-                  <th>quantity</th>
-                  <th>sold quantity</th>
+                  <th>Quantity</th>
+                  <th>Sold Quantity</th>
                   <th>Price</th>
                   <th>Discount(%)</th>
                   <th>Final Price</th>
@@ -117,7 +131,13 @@ const AdminInventoryProducts = () => {
                     <td>{product.category}</td>
                     <td>{product.sub_category}</td>
                     <td>
-                      <img src={product.product_images[0]} alt={product.product_name} width="50" height="50" />
+                      <img
+                        src={product.product_images[0]}
+                        alt={product.product_name}
+                        width="50"
+                        height="50"
+                        className="product-image"
+                      />
                     </td>
                     <td>{product.product_name}</td>
                     <td>{product.sku_number}</td>
@@ -134,33 +154,43 @@ const AdminInventoryProducts = () => {
           </div>
           <div className="pagination-container">
             <button
+              className="first-button"
+              onClick={goToFirstPage}
+              disabled={currentPage === 1}
+            >
+              First
+            </button>
+
+            <button
+              className="previous-button"
               onClick={prevPage}
               disabled={currentPage === 1}
-              className="pagination-button"
             >
               Previous
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => paginate(page)}
-                className={`pagination-button ${page === currentPage ? "active-page" : ""
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
+
+            <span>Page {currentPage} of {totalPages}</span>
+
             <button
+              className="next-button"
               onClick={nextPage}
               disabled={currentPage === totalPages}
-              className="pagination-button"
             >
               Next
+            </button>
+
+            <button
+              className="last-button"
+              onClick={goToLastPage}
+              disabled={currentPage === totalPages}
+            >
+              Last
             </button>
           </div>
         </>
       )}
     </div>
+
   );
 };
 

@@ -251,9 +251,10 @@
 .description-tab{
     border: 3px solid #4F4892;
     padding: 50px;
-    font-size: 14x;
+    font-size: 16px;
     font-weight: 400;
     border-radius: 20px;
+    text-align: left;
 }
 
 

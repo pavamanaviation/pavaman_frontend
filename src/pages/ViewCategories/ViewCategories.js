@@ -6,6 +6,7 @@ import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import API_BASE_URL from "../../config";
 import { Link } from "react-router-dom";
 import PopupMessage from "../../components/Popup/Popup";
+import { ClipLoader } from "react-spinners";
 
 const ViewCategories = ({ categories, setCategories }) => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const ViewCategories = ({ categories, setCategories }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [categoryNameToDelete, setCategoryNameToDelete] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
@@ -81,6 +83,7 @@ const ViewCategories = ({ categories, setCategories }) => {
   };
 
   const handleDeleteCategory = async () => {
+    setDeleting(true);
     const adminId = sessionStorage.getItem("admin_id");
 
     if (!adminId) {
@@ -90,6 +93,7 @@ const ViewCategories = ({ categories, setCategories }) => {
         </>,
         "error"
       );
+      setDeleting(false);
       return;
     }
 
@@ -102,7 +106,7 @@ const ViewCategories = ({ categories, setCategories }) => {
 
       const data = await response.json();
       if (response.ok && data.status_code === 200) {
-        displayPopup(` Category deleted successfully!`, "success");
+        displayPopup( `Category deleted successfully!`, "success");
         setShowDeletePopup(false);
         setTimeout(() => {
           setCategories(categories.filter((category) => category.category_id !== categoryToDelete));
@@ -113,6 +117,8 @@ const ViewCategories = ({ categories, setCategories }) => {
       }
     } catch (error) {
       displayPopup("Something went wrong. Please try again.", "error");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -125,45 +131,61 @@ const ViewCategories = ({ categories, setCategories }) => {
       <div className="category-div">
         <div className="category-heading">Categories</div>
         {error && <p className="error-message">{error}</p>}
-        {!loading && categories.length === 0 && <p className="no-data">No categories found.</p>}
       </div>
       <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
       </div>
-      <div className="category-cards">
-        {categories.map((category) => (
-          <div key={category.category_id} className="category-card">
-            <img
-              src={category.category_image_url}
-              alt={category.category_name}
-              onClick={() => handleViewSubcategories(category)}
-              className="card-image"
-            />
-            <p className="card-name">{category.category_name}</p>
-            <div className="card-menu">
-              <div onClick={() => handleEditCategory(category)} className="edit-label">
-                <FaEdit className="edit-icon" />
-                <span className="card-menu-icon-label edit-label">Edit</span>
-              </div>
-              <div
-                onClick={() => {
-                  setCategoryToDelete(category.category_id);
-                  setCategoryNameToDelete(category.category_name);
-                  setShowDeletePopup(true);
-                }}
-                className="delete-label"
-              >
-                <FaTrash className="delete-icon" />
-                <span className="card-menu-icon-label delete-label">Delete</span>
+      
+      {loading ? (
+         <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+      ) : (
+        <>
+          {categories.length === 0 ? (
+            <p className="no-data">No categories found.</p>
+          ) : (
+            <div className="category-cards">
+              {categories.map((category) => (
+                <div key={category.category_id} className="category-card">
+                  <img
+                    src={category.category_image_url}
+                    alt={category.category_name}
+                    onClick={() => handleViewSubcategories(category)}
+                    className="card-image"
+                  />
+                  <p className="card-name">{category.category_name}</p>
+                  <div className="card-menu">
+                    <div onClick={() => handleEditCategory(category)} className="edit-label">
+                      <FaEdit className="edit-icon" />
+                      <span className="card-menu-icon-label edit-label">Edit</span>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setCategoryToDelete(category.category_id);
+                        setCategoryNameToDelete(category.category_name);
+                        setShowDeletePopup(true);
+                      }}
+                      className="delete-label"
+                    >
+                      <FaTrash className="delete-icon" />
+                      <span className="card-menu-icon-label delete-label">Delete</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="add-category-card" onClick={handleAddCategory}>
+                <img src={AddIcon} alt="Add Category" className="add-category-image" />
               </div>
             </div>
-          </div>
-        ))}
+          )}
+        </>
+      )}
 
-        <div className="add-category-card" onClick={handleAddCategory}>
-          <img src={AddIcon} alt="Add Category" className="add-category-image" />
-        </div>
-      </div>
       {showDeletePopup && (
         <div className="admin-popup-overlay popup-overlay">
           <div className="popup-content">
@@ -171,10 +193,22 @@ const ViewCategories = ({ categories, setCategories }) => {
               Are you sure you want to delete <strong>"{categoryNameToDelete}"</strong> category?
             </p>
             <div className="popup-buttons">
-              <button className="popup-confirm cart-place-order" onClick={handleDeleteCategory}>
-                Yes, Delete
+              <button 
+                className="popup-confirm cart-place-order" 
+                onClick={handleDeleteCategory}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <ClipLoader size={20} color="#fff" />
+                ) : (
+                  "Yes, Delete"
+                )}
               </button>
-              <button className="popup-cancel cart-delete-selected" onClick={() => setShowDeletePopup(false)}>
+              <button 
+                className="popup-cancel cart-delete-selected" 
+                onClick={() => setShowDeletePopup(false)}
+                disabled={deleting}
+              >
                 Cancel
               </button>
             </div>

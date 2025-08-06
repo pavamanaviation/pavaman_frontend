@@ -2,16 +2,18 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./AdminCustomerOrders.css";
 import { Link } from "react-router-dom";
-import "./AdminCustomerOrders.css"
 import { FaEye } from "react-icons/fa";
 import generateInvoicePDF from '../Customer/CustomerInvoice/CustomerInvoice';
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const Report = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 15;
+  const [statusMap, setStatusMap] = useState({});
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -48,14 +50,24 @@ const Report = () => {
   const totalPages = Math.ceil(reports.length / reportsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
   const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-  const [statusMap, setStatusMap] = useState({});
+  if (loading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="report-wrapper">
-      <h2 className="report-title">Ordered Payment Reports</h2>
-      {loading && <p className="loading-text">Loading, please wait...</p>}
+      <h2 className="report-title report-title-heading">Ordered Payment Reports</h2>
       {error && <p className="error-text">{error}</p>}
       {!loading && !error && (
         <>
@@ -126,30 +138,41 @@ const Report = () => {
           </div>
           <div className="pagination-container">
             <button
+              className="first-button"
+              onClick={goToFirstPage}
+              disabled={currentPage === 1}
+            >
+              First
+            </button>
+
+            <button
+              className="previous-button"
               onClick={prevPage}
               disabled={currentPage === 1}
-              className="pagination-button"
             >
               Previous
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => paginate(page)}
-                className={`pagination-button ${page === currentPage ? "active-page" : ""
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
+
+            <span>Page {currentPage} of {totalPages}</span>
+
             <button
+              className="next-button"
               onClick={nextPage}
               disabled={currentPage === totalPages}
-              className="pagination-button"
             >
               Next
             </button>
+
+            <button
+              className="last-button"
+              onClick={goToLastPage}
+              disabled={currentPage === totalPages}
+            >
+              Last
+            </button>
           </div>
+
+
         </>
       )}
     </div>

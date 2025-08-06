@@ -44,21 +44,26 @@
 }
 .product-details-table {
   background-color: #ffffff;
-  padding: 20px;
+  padding: 10px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
 }
 .product-details-table h3 ,.product_order-id h3{
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 20px;
   color: #4450A2;
   font-weight: bold;
   display: initial;
 }
-.product_order-id {
-  margin-left: 463px;
+
+.product-details-table-heading{
+    display: flex;
+    gap: 200px;
+    align-items: center;
+    justify-content: center;
 }
+
 .product-details-table table {
   width: 100%;
   border-collapse: collapse;
@@ -104,4 +109,12 @@
 .second-address-details-column {
   flex: 1;
   min-width: 250px;
+}
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
 }

@@ -5,6 +5,8 @@ import { SlPeople } from "react-icons/sl";
 import { FaBoxOpen } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const Dashboard = () => {
     const [summaryData, setSummaryData] = useState(null);
     const [topBuyers, setTopBuyers] = useState([]);
@@ -12,42 +14,58 @@ const Dashboard = () => {
     const [lowStockProducts, setLowStockProducts] = useState([]);
     const navigate = useNavigate();
     const admin_id = sessionStorage.getItem("admin_id");
+    const[isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetchSummary();
-        fetchTopBuyers();
-        fetchMonthlyOrders();
+       const fetchAllData = async () => {
+            try {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchSummary(),
+                    fetchTopBuyers(),
+                    fetchMonthlyOrders()
+                ]);
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAllData();
     }, []);
 
     const fetchSummary = async () => {
-        try {
             const response = await axios.post(`${API_BASE_URL}/report-inventory-summary`, { admin_id });
             setSummaryData(response.data);
             setLowStockProducts(response.data.low_stock_products || []);
-        } catch (error) {
-            console.error("Error fetching summary:", error);
-        }
+       
     };
 
     const fetchTopBuyers = async () => {
-        try {
             const response = await axios.post(`${API_BASE_URL}/top-buyers-report`, { admin_id });
             setTopBuyers(response.data.buyers || []);
-        } catch (error) {
-            console.error("Error fetching top buyers:", error);
-        }
+       
     };
 
     const fetchMonthlyOrders = async () => {
-        try {
             const response = await axios.post(`${API_BASE_URL}/monthly-product-orders`, { admin_id });
             const currentMonth = new Date().toISOString().slice(0, 7);
             const currentData = response.data.data.find((item) => item.month === currentMonth);
             setCurrentMonthOrders(currentData ? currentData.total_quantity : 0);
-        } catch (error) {
-            console.error("Error fetching monthly orders:", error);
-        }
+        
     };
+
+     if (isLoading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="dashboard-container">
@@ -62,7 +80,7 @@ const Dashboard = () => {
                 </div>
                 <div className="dashboard-card card-sales-third">
                     <h3 className='today-heading'><FaBoxOpen className="yearly-icon" />Monthly Products Ordered</h3>
-                    <p>{currentMonthOrders !== null ? `${currentMonthOrders}` : "Loading..."}</p>
+                    <p>{currentMonthOrders !== null ? `${currentMonthOrders}` : "-"}</p>
                 </div>
             </div>
 

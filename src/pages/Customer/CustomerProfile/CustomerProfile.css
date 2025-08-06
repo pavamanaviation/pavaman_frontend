@@ -337,3 +337,11 @@
         padding: 8px 12px;
     }
 }
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
+}

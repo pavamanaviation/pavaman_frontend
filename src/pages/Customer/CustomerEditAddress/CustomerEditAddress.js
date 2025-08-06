@@ -14,7 +14,7 @@ const CartEditAddress = ({ address, onEditCompleted }) => {
         email: address.email || "",
         mobile_number: address.mobile_number || "",
         alternate_mobile: address.alternate_mobile || "",
-        address_type: address.address_type || "home",
+        address_type: address.address_type || "",
         pincode: address.pincode || "",
         street: address.street || "",
         landmark: address.landmark || "",
@@ -86,7 +86,7 @@ const CartEditAddress = ({ address, onEditCompleted }) => {
             const response = await fetch(`${API_BASE_URL}/edit-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id, ...formData, mobile_number: `+${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `+${formData.alternate_mobile}` : "" })
+                body: JSON.stringify({ customer_id, ...formData, mobile_number: `${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `${formData.alternate_mobile}` : "" })
             });
 
             const data = await response.json();
@@ -240,7 +240,7 @@ const CartEditAddress = ({ address, onEditCompleted }) => {
                             className="input-text-field"
                             type="text"
                             name="locality"
-                            value={formData.landmark}
+                            value={formData.city}
                             onChange={handleChange}
                         />
                         <label>City/Town<span className="required-star">*</span></label>

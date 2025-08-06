@@ -169,6 +169,7 @@
   }
 
   .otp-popup-content {
+    position: relative;
     background: white;
     padding: 20px;
     border-radius: 20px;
@@ -208,3 +209,16 @@
     width: 90%;
   }
   
+  .otp-close-icon {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #444;
+  transition: color 0.2s ease-in-out;
+}
+
+.otp-close-icon:hover {
+  color: red;
+}

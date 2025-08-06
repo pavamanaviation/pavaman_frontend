@@ -6,6 +6,9 @@ import PopupMessage from "../../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
+import { set } from "date-fns";
+
 const CustomerViewCart = () => {
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
@@ -61,6 +64,7 @@ const CustomerViewCart = () => {
         }
 
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/view-cart-products`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -168,6 +172,7 @@ const CustomerViewCart = () => {
 
 
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/delete-cart-product`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -196,6 +201,8 @@ const CustomerViewCart = () => {
             }
         } catch (error) {
             setError("An unexpected error occurred.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -266,6 +273,7 @@ const CustomerViewCart = () => {
         }
 
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/delete-selected-products-cart`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -292,6 +300,8 @@ const CustomerViewCart = () => {
             }
         } catch (error) {
             setError("An unexpected error occurred.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -333,6 +343,7 @@ const CustomerViewCart = () => {
         };
 
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/products/order-multiple-products`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -356,9 +367,13 @@ const CustomerViewCart = () => {
             }
         } catch (error) {
             displayPopup("An unexpected error occurred.", "error");
+        } finally {
+            setLoading(false);
         }
     };
+
     const handleQuantityChange = async (product_id, change) => {
+        setLoading(true);
         setCartItems((prevItems) => {
             const updatedCart = prevItems.map((item) =>
                 item.product_id === product_id
@@ -390,8 +405,22 @@ const CustomerViewCart = () => {
         } catch (error) {
             console.error("Error updating quantity:", error);
             displayPopup("Failed to update quantity. Please try again.", "error");
+        } finally {
+            setLoading(false);
         }
     };
+
+    if (loading && cartItems.length === 0) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="cart-container container">
             <div className="popup-cart">
@@ -406,11 +435,10 @@ const CustomerViewCart = () => {
             <h2 className="cart-title"><FaShoppingCart className="cart-nav-icon" />Your Shopping Cart</h2>
 
 
-            {loading && <p>Loading...</p>}
-            {error && <p>{error}</p>}
-            {!loading && !error && cartItems.length === 0 && <p>Your cart is empty.</p>}
-
-
+            {error && <p className="error-message">{error}</p>}
+            {!loading && !error && cartItems.length === 0 && (
+                <p className="empty-cart-message">Your cart is empty.</p>
+            )}
 
             <div className="cart-page">
 
@@ -425,6 +453,7 @@ const CustomerViewCart = () => {
                                         className="cart-checkbox"
                                         checked={selectedProducts.includes(item.product_id)}
                                         onChange={() => handleCheckboxChange(item.product_id)}
+                                        disabled={loading}
                                     />
 
                                     <img
@@ -435,11 +464,26 @@ const CustomerViewCart = () => {
 
 
                                     <div className="quantity-selector">
-                                        <button className="quantity-btn" onClick={() => handleQuantityChange(item.product_id, -1)} disabled={item.quantity === 1}>-</button>
+                                        <button
+                                            className="quantity-btn"
+                                            onClick={() => handleQuantityChange(item.product_id, -1)}
+                                            disabled={item.quantity === 1 || loading}
+                                        >
+                                            -
+                                        </button>
                                         <span className="quantity">{item.quantity}</span>
-                                        <button className="quantity-btn" onClick={() => handleQuantityChange(item.product_id, 1)}>+</button>
+                                        <button
+                                            className="quantity-btn"
+                                            onClick={() => handleQuantityChange(item.product_id, 1)}
+                                            disabled={loading}
+                                        >
+                                            +
+                                        </button>
                                         <div className="cart-buttons">
-                                            <RiDeleteBinLine className="remove" onClick={() => handleDeleteCartItem(item.product_id)} />
+                                            <RiDeleteBinLine
+                                                className={`remove ${loading ? "disabled-icon" : ""}`}
+                                                onClick={() => !loading && handleDeleteCartItem(item.product_id)}
+                                            />
 
                                         </div>
 
@@ -476,11 +520,27 @@ const CustomerViewCart = () => {
                         ))}
                         {selectedProducts.length > 0 && (
                             <div className="cart-actions">
-                                <button className="cart-delete-selected" onClick={handleDeleteSelectedItems}>
-                                    Remove From Cart
+                                <button
+                                    className="cart-delete-selected"
+                                    onClick={handleDeleteSelectedItems}
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <ClipLoader size={20} color="#ffffff" />
+                                    ) : (
+                                        "Remove From Cart"
+                                    )}
                                 </button>
-                                <button className="cart-place-order" onClick={handlePlaceOrder}>
-                                    Place Order
+                                <button
+                                    className="cart-place-order"
+                                    onClick={handlePlaceOrder}
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <ClipLoader size={20} color="#ffffff" />
+                                    ) : (
+                                        "Place Order"
+                                    )}
                                 </button>
                             </div>
                         )}

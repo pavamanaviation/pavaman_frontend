@@ -4,12 +4,13 @@ import './AdminDiscounts.css';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from "../../config";
 import PopupMessage from "../../components/Popup/Popup";
+import { ClipLoader } from 'react-spinners';
+
 const AdminDiscountProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -47,7 +48,7 @@ const AdminDiscountProducts = () => {
       displayPopup('Failed to fetch products.', "error");
 
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -79,9 +80,24 @@ const AdminDiscountProducts = () => {
   const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(products.length / itemsPerPage);
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
+  if (isLoading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="recent-orders">
       <div className="discount-header">
@@ -92,77 +108,82 @@ const AdminDiscountProducts = () => {
           <button onClick={downloadExcel}>Download Excel</button>
         </div>
       </div>
-     <div className="admin-popup">
+      <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
       </div>
       {error && <p className="error-message">{error}</p>}
-      {loading ? (
-        <p className="loading-text">Loading, please wait...</p>
-      ) : (
-        <>
-          <div className="customer-table-container">
-            <table className="customer-table">
-              <thead>
-                <tr>
-                  <th>S.No.</th>
-                  <th>Category Name</th>
-                  <th>SubCategory Name</th>
-                  <th>Image</th>
-                  <th>Product Name</th>
-                  <th>SKU</th>
-                  <th>Price</th>
-                  <th>Discount(%)</th>
-                  <th>Final Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentProducts.map((product, index) => (
-                  <tr key={product.product_id}>
-                    <td>{indexOfFirstProduct + index + 1}</td>
-                    <td>{product.category}</td>
-                    <td>{product.sub_category}</td>
-                    <td>
-                      <img src={product.product_images[0]} alt={product.product_name} width="50" height="50" />
-                    </td>
-                    <td>{product.product_name}</td>
-                    <td>{product.sku_number}</td>
-                    <td>₹ {product.price.toFixed(2)}</td>
-                    <td>{product.discount}</td>
-                    <td>₹ {product.final_price.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="pagination-container">
-            <button
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className="pagination-button"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => paginate(page)}
-                className={`pagination-button ${page === currentPage ? "active-page" : ""
-                  }`}
-              >
-                {page}
-              </button>
+
+      <div className="customer-table-container">
+        <table className="customer-table">
+          <thead>
+            <tr>
+              <th>S.No.</th>
+              <th>Category Name</th>
+              <th>SubCategory Name</th>
+              <th>Image</th>
+              <th>Product Name</th>
+              <th>SKU</th>
+              <th>Price</th>
+              <th>Discount(%)</th>
+              <th>Final Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentProducts.map((product, index) => (
+              <tr key={product.product_id}>
+                <td>{indexOfFirstProduct + index + 1}</td>
+                <td>{product.category}</td>
+                <td>{product.sub_category}</td>
+                <td>
+                  <img src={product.product_images[0]} alt={product.product_name} width="50" height="50" />
+                </td>
+                <td>{product.product_name}</td>
+                <td>{product.sku_number}</td>
+                <td>₹ {product.price.toFixed(2)}</td>
+                <td>{product.discount}</td>
+                <td>₹ {product.final_price.toFixed(2)}</td>
+              </tr>
             ))}
-            <button
-              onClick={nextPage}
-              disabled={currentPage === totalPages}
-              className="pagination-button"
-            >
-              Next
-            </button>
-          </div>
-        </>
-      )}
+          </tbody>
+        </table>
+      </div>
+      <div className="pagination-container">
+        <button
+          className="first-button"
+          onClick={goToFirstPage}
+          disabled={currentPage === 1}
+        >
+          First
+        </button>
+
+        <button
+          className="previous-button"
+          onClick={prevPage}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+
+        <span>Page {currentPage} of {totalPages}</span>
+
+        <button
+          className="next-button"
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+
+        <button
+          className="last-button"
+          onClick={goToLastPage}
+          disabled={currentPage === totalPages}
+        >
+          Last
+        </button>
+      </div>
     </div>
+
   );
 };
 export default AdminDiscountProducts;

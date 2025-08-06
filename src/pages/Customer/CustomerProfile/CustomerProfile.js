@@ -6,6 +6,8 @@ import { BiSolidPencil } from "react-icons/bi";
 import { FaTimes } from "react-icons/fa";
 import PhoneInput from "react-phone-input-2";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
+
 const CustomerProfile = ({ refresh }) => {
   const navigate = useNavigate();
   const [customer, setCustomer] = useState(null);
@@ -74,9 +76,16 @@ const CustomerProfile = ({ refresh }) => {
     );
   }
 
-  if (loading) {
-    return <div className="loading-box">Loading profile...</div>;
-  }
+if (loading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
   if (error) {
     return (

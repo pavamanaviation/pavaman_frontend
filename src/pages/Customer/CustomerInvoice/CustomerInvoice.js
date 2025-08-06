@@ -149,10 +149,12 @@ const generateInvoicePDF = async (customerId, order, mode = 'download') => {
         doc.text('For support, contact us at: support@yourstore.com', 14, footerY + 10);
 
         if (mode === 'view') {
-            doc.output('dataurlnewwindow');
-        } else {
-            doc.save(`Invoice_${invoice.invoice_number}.pdf`);
-        }
+    const blobUrl = doc.output('bloburl');
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+} else {
+    doc.save(`Invoice_${invoice.invoice_number || 'invoice'}.pdf`);
+}
+
 
     } catch (error) {
         console.error("PDF generation error:", error);

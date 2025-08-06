@@ -12,6 +12,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format, startOfWeek as startOfWeekFunc, endOfWeek as endOfWeekFunc } from 'date-fns';
 import PopupMessage from "../../components/Popup/Popup";
 import { Link } from "react-router-dom";
+import { ClipLoader } from 'react-spinners';
 
 const AdminCustomerReports = () => {
   const [adminId, setAdminId] = useState(null);
@@ -28,7 +29,7 @@ const AdminCustomerReports = () => {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 11;
-
+  const [isloading, setIsLoading] = useState(true);
   const [yearRange, setYearRange] = useState({
     from: new Date(startYear, 0, 1),
     to: new Date(currentYear, 11, 31),
@@ -85,16 +86,31 @@ const AdminCustomerReports = () => {
       return;
     }
     setAdminId(storedAdminId);
-    fetchSalesSummary(storedAdminId);
-    fetchTopProducts(storedAdminId);
-    fetchBottomProducts(storedAdminId);
-    fetchOrderStatusSummary(storedAdminId);
+    loadAllData(storedAdminId);
   }, []);
   useEffect(() => {
-    if (adminId) {
+    if (adminId && !isloading) {
       fetchMonthlyRevenue(adminId);
     }
   }, [adminId, reportYear, reportFilter, selectedMonth, selectedWeek]);
+
+  const loadAllData = async (admin_id) => {
+    try {
+      setIsLoading(true);
+      await Promise.all([
+        fetchSalesSummary(admin_id),
+        fetchMonthlyRevenue(admin_id),
+        fetchTopProducts(admin_id),
+        fetchBottomProducts(admin_id),
+        fetchOrderStatusSummary(admin_id)
+      ]);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      displayPopup("Failed to load data. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchSalesSummary = async (admin_id) => {
     try {
@@ -137,10 +153,7 @@ const AdminCustomerReports = () => {
           setMonthlyRevenue(res.data.monthly_revenue || {});
         } else if (reportFilter === 'yearly') {
           setMonthlyRevenue(res.data.yearly_revenue || {});
-          const yearlyChartData = Object.entries(monthlyRevenue).map(([year, value]) => ({
-            year,
-            revenue: value,
-          }));
+
 
         } else if (reportFilter === 'weekly') {
           setMonthlyRevenue(res.data.daywise_revenue || {});
@@ -197,17 +210,43 @@ const AdminCustomerReports = () => {
   const handleFilterClick = () => {
     fetchMonthlyRevenue(adminId);
   };
+
+  if (isLoading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-reports">
       <h2 className='sales-reports'>Sales Reports</h2>
       <div className="summary-cards">
-        <div className="card-sales-first"><h3 className='today-heading'><BsCoin className="today-icon" />Today</h3> <p>{formatAmount(summary.today)}</p></div>
-        <div className="card-sales-second"><h3 className='today-heading'><PiHandCoinsBold className="monthly-icon" />Monthly</h3><p>{formatAmount(summary.month)}</p></div>
-        <div className="card-sales-third"><h3 className='today-heading'><GiCoins className="yearly-icon" />Yearly</h3><p>{formatAmount(summary.total)}</p></div>
+   <div className="card-sales-first">
+          <h3 className='today-heading'><BsCoin className="today-icon" />Today</h3>
+          <p>{formatAmount(summary.today)}</p>
+        </div>
+        <div className="card-sales-second">
+          <h3 className='today-heading'><PiHandCoinsBold className="monthly-icon" />Monthly</h3>
+          <p>{formatAmount(summary.month)}</p>
+        </div>
+        <div className="card-sales-third">
+          <h3 className='today-heading'><GiCoins className="yearly-icon" />Yearly</h3>
+          <p>{formatAmount(summary.total)}</p>
+        </div>
       </div>
       <div className="charts-status">
         <div className="chart-box">
-          <h3>{reportFilter.charAt(0).toUpperCase() + reportFilter.slice(1)} Sales ({reportYear})</h3>
+          <h3>
+            {reportFilter === "yearly" && `Yearly Sales (${format(yearRange.from, "yyyy")} - ${format(yearRange.to, "yyyy")})`}
+            {reportFilter === "monthly" && `Monthly Sales (${format(monthRange.from, "MMM yyyy")} - ${format(monthRange.to, "MMM yyyy")})`}
+            {reportFilter === "weekly" && `Weekly Sales (${format(startOfWeekFunc(weekDate, { weekStartsOn: 1 }), "dd MMM yyyy")} - ${format(endOfWeekFunc(weekDate, { weekStartsOn: 1 }), "dd MMM yyyy")})`}
+          </h3>
+
           <div className="admin-popup">
             <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
           </div>
@@ -387,11 +426,12 @@ const AdminCustomerReports = () => {
                   <td >{p.product_name}</td>
                 </tr>
               ))}
-              <button className="view-more-button" onClick={() => navigate("/bottom-products")}>
-                View More...
-              </button>
+            
             </tbody>
           </table>
+            <button className="view-more-button" onClick={() => navigate("/bottom-products")}>
+                View More...
+              </button>
         </div>
       </div>
     </div>

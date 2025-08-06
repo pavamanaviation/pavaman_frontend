@@ -26,7 +26,7 @@
 .label {
     color: #000;
     font-family: Inter;
-    font-size: 24px;
+    font-size: 1.2rem;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -59,12 +59,14 @@ line-height: normal;
     cursor: not-allowed;
 }
 
-.input-row {
+.admin-input-row {
     display: flex;
     gap: 10px;
 }
-
-.input-row div {
+.admin-input-row div {
+text-align: left;
+}
+.admin-input-row div {
     flex: 1;
 }
 

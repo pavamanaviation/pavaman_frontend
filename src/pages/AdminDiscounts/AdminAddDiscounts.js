@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import "./AdminAddDiscount.css";
 import API_BASE_URL from "../../config";
+import PopupMessage from "../../components/Popup/Popup";
+import { ClipLoader } from 'react-spinners';
+
 const AdminAddDiscount = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
@@ -10,16 +13,41 @@ const AdminAddDiscount = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [categoryId, setCategoryId] = useState('');
   const [discount, setDiscount] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
+  const [showPopup, setShowPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const displayPopup = (text, type = "success") => {
+    setPopupMessage({ text, type });
+    setShowPopup(true);
+
+    setTimeout(() => {
+      setShowPopup(false);
+    }, 5000);
+  };
 
   useEffect(() => {
-    fetchCategories();
+    const fetchData = async () => {
+      const adminId = sessionStorage.getItem("admin_id");
+      if (!adminId) {
+        navigate("/admin-login");
+        return;
+      }
+
+      try {
+        await fetchCategories(adminId);
+      } catch (error) {
+        setError("Failed to load initial data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const fetchCategories = async () => {
-    const adminId = sessionStorage.getItem("admin_id");
-    if (!adminId) return navigate("/admin-login");
+  const fetchCategories = async (adminId) => {
+
 
     try {
       const response = await fetch(`${API_BASE_URL}/view-categories`, {
@@ -30,9 +58,11 @@ const AdminAddDiscount = () => {
 
       const data = await response.json();
       if (response.ok) setCategories(data.categories || []);
-      else setError(data.error || "Failed to fetch categories.");
+      else
+        displayPopup(data.error || "Failed to fetch categories.", "error");
+
     } catch {
-      setError("Server error while fetching categories.");
+      displayPopup("Server error while fetching categories.", "error");
     }
   };
 
@@ -76,18 +106,20 @@ const AdminAddDiscount = () => {
       prev.includes(id) ? prev.filter(subId => subId !== id) : [...prev, id]
     );
   };
+
   const handleSave = async () => {
-    setError('');
-    setSuccess('');
     const adminId = sessionStorage.getItem('admin_id');
+
     if (!categoryId || selectedSubcategories.length === 0 || !discount) {
-      setError('Please select category, at least one subcategory, and enter a discount.');
+      displayPopup('Please select category, at least one subcategory, and enter a discount.', "error");
       return;
     }
+
     if (isNaN(discount) || Number(discount) <= 0 || Number(discount) > 100) {
-    setError('Please enter a valid discount between 1 and 100.Do not use "%".');
-    return;
+      displayPopup('Please enter a valid discount between 1 and 100. Do not use "%".', "error");
+      return;
     }
+
     const selectedCategory = categories.find(cat => cat.category_id === categoryId);
     const payload = {
       admin_id: adminId,
@@ -104,17 +136,21 @@ const AdminAddDiscount = () => {
     };
 
     try {
+      setIsLoading(true);
       const response = await axios.post(`${API_BASE_URL}/apply-discount-subcategory`, payload);
       if (response.data.status_code === 200) {
-        setSuccess('Discount applied successfully!');
+        displayPopup('Discount applied successfully!', "success");
         setTimeout(() => navigate('/discounts'), 2000);
       } else {
-        setError(response.data.error || 'Failed to apply discount.');
+        displayPopup(response.data.error || 'Failed to apply discount.', "error");
       }
     } catch {
-      setError('Server error while applying discount.');
+      displayPopup('Server error while applying discount.', "error");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   const handleSelectAll = (e) => {
     const isChecked = e.target.checked;
     if (isChecked) {
@@ -125,8 +161,23 @@ const AdminAddDiscount = () => {
     }
   };
   const isAllSelected = subcategories.length > 0 && selectedSubcategories.length === subcategories.length;
+  if (isLoading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loading-content">
+          <ClipLoader size={50} color="#4450A2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="add-discount-container">
+      <div className="admin-popup">
+        <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
+      </div>
+
       <div className='add-discount-heading'>Add Discount</div>
 
       <div className="discount-form-group">
@@ -193,8 +244,6 @@ const AdminAddDiscount = () => {
           />
         </div>
       )}
-      {error && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
       <div className="discount-button-group">
         <button className="cart-place-order" onClick={handleSave}>Save</button>
         <button className="cart-delete-selected discount-admin-side" onClick={() => navigate("/discounts")}>Cancel</button>

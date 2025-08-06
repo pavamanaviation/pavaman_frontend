@@ -96,7 +96,7 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
             const response = await fetch(`${API_BASE_URL}/edit-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id,...formData, mobile_number: `+${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `+${formData.alternate_mobile}` : "" })
+                body: JSON.stringify({ customer_id,...formData, mobile_number: `${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `${formData.alternate_mobile}` : "" })
 
             });
             const data = await response.json();
@@ -202,7 +202,7 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
                                 className="input-text-field"
                                 type="text"
                                 name="locality"
-                                value={formData.landmark}
+                                value={formData.city}
                                 onChange={handleChange}
                                 required
                             />

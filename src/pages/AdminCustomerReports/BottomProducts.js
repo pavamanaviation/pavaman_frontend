@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
+
 const BottomProductsPage = () => {
   const [bottomProducts, setBottomProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,10 +20,21 @@ const BottomProductsPage = () => {
         setLoading(false);
       });
   }, []);
+
+  if (loading) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
   return (
     <div className="report-wrapper">
       <h2 className="report-title">Bottom Products (Not Selling)</h2>
-      {loading && <p className="loading-text">Loading products...</p>}
       {error && <p className="error-text">{error}</p>}
       {!loading && !error && (
         <div className="report-table-container">

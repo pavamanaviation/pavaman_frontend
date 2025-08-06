@@ -55,3 +55,52 @@
   .heading-admin{
     color: #4450A2;
   }
+
+
+  .full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
+}
+
+.first-button,
+.last-button {
+  background-color: #4450A2;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.first-button:hover,
+.last-button:hover {
+  background-color: #2e3a7e;
+}
+
+.first-button:disabled,
+.last-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+
+.pagination-container span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4450A2;
+  margin: 0 15px;
+}
+
