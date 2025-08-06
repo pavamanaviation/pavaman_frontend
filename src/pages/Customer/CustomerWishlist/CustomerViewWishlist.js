@@ -169,7 +169,7 @@ const ViewWishlist = () => {
                     </div>
                 )}
 
-                <div className="customer-products-section">
+                <div className="customer-products-section customer-wishlist-products">
                     {currentProducts.length > 0 ? (
                         currentProducts.map((product) => (
                             <div

@@ -12,7 +12,7 @@ const PaidOrderDetails = () => {
   const [productStatuses, setProductStatuses] = useState({});
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
-cosnt [isloading, setIsLoading] = useState(true);
+const [isloading, setIsLoading] = useState(true);
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });

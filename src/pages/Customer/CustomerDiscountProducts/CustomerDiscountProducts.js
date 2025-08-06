@@ -263,7 +263,7 @@ const ViewDiscountedProducts = ({ slidesToShow = 5 }) => {
         </div>
     );
 
-    if (isLoading) {
+    if (loading) {
         return (
             <div className="full-page-loading">
                 <div className="loading-content">

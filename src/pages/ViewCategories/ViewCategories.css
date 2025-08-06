@@ -48,7 +48,7 @@
     text-align: center;
     max-width: 220px;
     border: 0.5px solid #e5d9d9;
-    max-height: 355px
+    /* max-height: 355px */
 
 }
 .card-image{
@@ -102,11 +102,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    max-height: 355px;
+    /* max-height: 355px; */
 }
-.product-card,.product-cards .add-category-card{
+/* .product-card,.product-cards .add-category-card{
     height: 440px;
-}
+} */
 
 .card-code, .card-price{
     font-size: 18px;

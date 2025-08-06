@@ -207,9 +207,7 @@ const ViewSubcategories = ({ subcategories, setSubcategories }) => {
             </div>
       ) : (
         <>
-          {subcategories.length === 0 ? (
-            <p className="no-data">No subcategories found.</p>
-          ) : (
+        
             <div className="category-cards">
               {subcategories.map((subcategory) => (
                 <div key={subcategory.id} className="category-card">
@@ -243,7 +241,7 @@ const ViewSubcategories = ({ subcategories, setSubcategories }) => {
                 <img src={AddIcon} alt="Add Subcategory" className="add-category-image" />
               </div>
             </div>
-          )}
+       
         </>
       )}
 

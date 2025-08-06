@@ -29,7 +29,7 @@ const AdminCustomerReports = () => {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 11;
-  const [isloading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [yearRange, setYearRange] = useState({
     from: new Date(startYear, 0, 1),
     to: new Date(currentYear, 11, 31),
@@ -89,7 +89,7 @@ const AdminCustomerReports = () => {
     loadAllData(storedAdminId);
   }, []);
   useEffect(() => {
-    if (adminId && !isloading) {
+    if (adminId && !isLoading) {
       fetchMonthlyRevenue(adminId);
     }
   }, [adminId, reportYear, reportFilter, selectedMonth, selectedWeek]);

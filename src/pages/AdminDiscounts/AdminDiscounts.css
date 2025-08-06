@@ -104,3 +104,15 @@
   margin: 0 15px;
 }
 
+.discount-buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.discount-buttons button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+

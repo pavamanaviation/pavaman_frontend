@@ -167,7 +167,7 @@ const Customer = () => {
                                         <tr key={customer.id}>
                                             <td>{indexOfFirstCustomer + index + 1}</td>
                                             <td>{`${customer.first_name} ${customer.last_name}`}</td>
-                                            <td className="admin-mail">{customer.email.toLoweCase()}</td>
+                                            <td className="admin-email">{customer.email.toLowerCase()}</td>
                                             <td>{formatMobileNumber(customer.mobile_no)}</td>
                                             <td>{customer.register_type}</td>
                                             <td>

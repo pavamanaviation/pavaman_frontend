@@ -88,6 +88,7 @@ const ViewProducts = ({ products, setProducts }) => {
   };
 
   const handleEditProduct = (product) => {
+    console.log(product.product_discount )
     navigate("/edit-product", {
       state: {
         category_id,
@@ -101,7 +102,8 @@ const ViewProducts = ({ products, setProducts }) => {
         quantity: product.quantity,
         gst: product.gst || "",
         hsn_code: product.hsn_code || "",
-        discount: product.product_discount || "",
+        // discount: product.product_discount || "",
+        discount: product.product_discount ?? "",
         description: product.product_description || "",
         product_images: product.product_images || [],
       },
@@ -169,13 +171,15 @@ const ViewProducts = ({ products, setProducts }) => {
 
       <div className="category-div">
         <div className="category-heading">Products</div>
+         {error && <p className="error-message">{error}</p>}
+        {!loading && products.length === 0 && <p className="no-data">No products found.</p>}
+        </div>
         <button className="upload-product-excel" onClick={uploadproductExcel}>Upload Product Excel</button>
         <div className="admin-popup">
           <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
         </div>
-        {error && <p className="error-message">{error}</p>}
-        {!loading && products.length === 0 && <p className="no-data">No products found.</p>}
-      </div>
+       
+ 
 
       <div className="category-cards product-cards">
         {products.map((product) => (
@@ -205,11 +209,11 @@ const ViewProducts = ({ products, setProducts }) => {
                                     </>
                                 ) : (
                                     <>
-                                        <p className="all-product-price">₹ {product.final_price} (incl. GST)
+                                        <div className="all-product-price">₹ {product.final_price} (incl. GST)
                                           <div className="all-discount-tag-view">
                                                 {product.product_discount ? `${product.product_discount}% off` : <span className="invisible-discount">--</span>}
                                             </div>
-                                        </p>
+                                        </div>
                                         <div className="all-product-discount">
                                             <span className="all-product-discount-price-view">₹{product.price}.00(incl. GST)</span>
                                             

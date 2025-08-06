@@ -28,15 +28,13 @@ const AddProduct = () => {
     });
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [isPageLoading, setIsPageLoading] = useState(true);
-
+    const [isPageLoading, setIsPageLoading] = useState(true); 
     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
     const [showPopup, setShowPopup] = useState(false);
 
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
-
         setTimeout(() => {
             setShowPopup(false);
         }, 10000);
@@ -44,13 +42,12 @@ const AddProduct = () => {
 
     useEffect(() => {
         const adminId = sessionStorage.getItem("admin_id");
-
         if (!adminId) {
             displayPopup("Session expired. Please log in again.", "error");
             sessionStorage.clear();
-            setIsPageLoading(false);
             navigate("/admin-login");
         }
+        setIsPageLoading(false); 
     }, [navigate]);
 
     const handleChange = (e) => {
@@ -60,7 +57,6 @@ const AddProduct = () => {
 
     const handleFileChange = (e) => {
         const { name, files } = e.target;
-
         if (files.length === 0) return;
 
         setFormData((prev) => {
@@ -77,8 +73,6 @@ const AddProduct = () => {
             }
             return prev;
         });
-
-        console.log(`${name} updated. Selected ${files.length} file(s).`);
     };
 
     const handleSubmit = async (e) => {
@@ -96,6 +90,7 @@ const AddProduct = () => {
             );
             return;
         }
+
         const formDataToSend = new FormData();
         formDataToSend.append("admin_id", admin_id);
         Object.keys(formData).forEach((key) => {
@@ -107,6 +102,7 @@ const AddProduct = () => {
                 formDataToSend.append(key, formData[key]);
             }
         });
+
         try {
             const response = await fetch(`${API_BASE_URL}/add-product`, {
                 method: "POST",
@@ -130,7 +126,7 @@ const AddProduct = () => {
             }
         } catch (error) {
             setError("Network error, please try again");
-            displayPopup(error, "Something went wrong. Please try again.", "error");
+            displayPopup("Something went wrong. Please try again.", "error");
         } finally {
             setIsLoading(false);
         }
@@ -145,7 +141,7 @@ const AddProduct = () => {
                 </div>
             </div>
         );
-    };
+    }
 
     return (
         <div className="edit-product-container">
@@ -190,7 +186,6 @@ const AddProduct = () => {
                         <label className="label">Discount</label>
                         <input type="text" name="discount" placeholder="Enter discount without %" onChange={handleChange} className="input-field" />
                     </div>
-
                     <div>
                         <label className="label">GST</label>
                         <input type="text" name="gst" placeholder="Enter GST without %" onChange={handleChange} required className="input-field" />

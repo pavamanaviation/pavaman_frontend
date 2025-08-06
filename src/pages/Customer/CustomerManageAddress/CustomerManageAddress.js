@@ -1,4 +1,4 @@
-import{ useState, useEffect ,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import CustomerManageAddAddress from "../CustomerManageAddAddress/CustomerManageAddAddress";
 import CustomerManageEditAddress from "../CustomerManageEditAddress/CustomerManageEditAddress";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -23,18 +23,21 @@ const ManageCustomerAddress = ({ refresh }) => {
             setShowPopup(false);
         }, 10000);
     };
-
-      useEffect(() => {
+    useEffect(() => {
         const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
+            // Close only if click is outside the currently open dropdown
+            if (!event.target.closest(".manage-menu-container")) {
                 setSelectedMenu(null);
             }
         };
-        document.addEventListener("mousedown", handleClickOutside);
+
+        document.addEventListener("click", handleClickOutside);
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("click", handleClickOutside);
         };
     }, []);
+
+
 
     const fetchAddresses = async () => {
         if (!customerId) return;
@@ -66,7 +69,7 @@ const ManageCustomerAddress = ({ refresh }) => {
         setEditingAddress(null);
         if (message) {
             fetchAddresses();
-           displayPopup(message,"success")
+            displayPopup(message, "success")
         }
     };
 
@@ -85,29 +88,29 @@ const ManageCustomerAddress = ({ refresh }) => {
             });
             if (response.ok) {
                 fetchAddresses();
-                displayPopup("Your address has been deleted successfully!","success");
+                displayPopup("Your address has been deleted successfully!", "success");
             } else {
-                displayPopup("Error deleting address.","error");
+                displayPopup("Error deleting address.", "error");
             }
         } catch (error) {
             console.error("Delete error:", error);
-            displayPopup(error || "Delete error.","error");
+            displayPopup(error || "Delete error.", "error");
 
         }
     };
 
     return (
         <div className="manage-address-list">
-            
+
             <div className="popup-cart">
-                        {showPopup && (
-                        <PopupMessage
-                            message={popupMessage.text}  
-                            type={popupMessage.type}
-                            onClose={() => setShowPopup(false)}
-                        />
-                    )}
-                    </div>
+                {showPopup && (
+                    <PopupMessage
+                        message={popupMessage.text}
+                        type={popupMessage.type}
+                        onClose={() => setShowPopup(false)}
+                    />
+                )}
+            </div>
             <h2>Manage Addresses</h2>
 
             {!showAddAddressForm && (
@@ -116,14 +119,14 @@ const ManageCustomerAddress = ({ refresh }) => {
                 </button>
             )}
 
-             {showAddAddressForm && (
+            {showAddAddressForm && (
                 <CustomerManageAddAddress
                     onAddressAdded={() => {
                         fetchAddresses();
                         setShowAddAddressForm(false);
-                        displayPopup("New address added successfully!","success");
+                        displayPopup("New address added successfully!", "success");
                     }}
-                    setShowAddAddressForm={setShowAddAddressForm} 
+                    setShowAddAddressForm={setShowAddAddressForm}
                 />
             )}
 
@@ -141,22 +144,44 @@ const ManageCustomerAddress = ({ refresh }) => {
                                     <span className="manage-address-type">
                                         {address.address_type?.toUpperCase() || "UNKNOWN"}
                                     </span>
-                                    <div className="manage-menu-container" ref={menuRef}>
+                                    <div className="manage-menu-container" onClick={(e) => e.stopPropagation()}>
                                         <BsThreeDotsVertical
                                             className="manage-menu-icon"
-                                             onClick={() => setSelectedMenu(prev => prev === address.address_id ? null : address.address_id)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedMenu((prev) =>
+                                                    prev === address.address_id ? null : address.address_id
+                                                );
+                                            }}
                                         />
+
                                         {selectedMenu === address.address_id && (
-                                            <div className="manage-menu-dropdown">
-                                                <button className="edit-btn" onClick={() => handleEditAddress(address)}>
+                                            <div
+                                                className="manage-menu-dropdown"
+                                                onClick={(e) => e.stopPropagation()} // Stop closing when clicking inside
+                                            >
+                                                <button
+                                                    className="edit-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEditAddress(address);
+                                                    }}
+                                                >
                                                     Edit
                                                 </button>
-                                                <button className="delete-btn" onClick={() => setDeletingAddress(address.address_id)}>
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setDeletingAddress(address.address_id);
+                                                    }}
+                                                >
                                                     Delete
                                                 </button>
                                             </div>
                                         )}
                                     </div>
+
                                 </div>
                                 <p>
                                     <strong>{address.first_name} {address.last_name}</strong>{" "}

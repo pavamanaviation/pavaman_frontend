@@ -6,6 +6,7 @@ import ViewDiscountedProducts from "../CustomerDiscountProducts/CustomerDiscount
 import { Range } from 'react-range';
 import CarouselLanding from "../CustomerCarousel/CustomerCarousel";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
 
 const ViewSubCategoriesAndDiscountedProducts = () => {
     const navigate = useNavigate();
@@ -73,6 +74,7 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
 
     const fetchSubCategories = async (categoryName) => {
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/categories/view-sub-categories/`, {
                 method: "POST",
                 headers: {
@@ -166,6 +168,7 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
         const [min, max] = values;
         setMinPrice(min);
         setMaxPrice(max);
+        setLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/filter-product-price-each-category`, {
                 method: "POST",
@@ -216,6 +219,9 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
         } catch (error) {
             setError("An unexpected error occurred while filtering.");
         }
+        finally {
+            setLoading(false);
+        }
     };
     const toggleCategory = (category_name) => {
         setExpandedCategory((prev) => (prev === category_name ? null : category_name));
@@ -242,6 +248,8 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
     return (
         <div className="customer-dashboard container">
             <CarouselLanding />
+
+            {error && <p>{error}</p>}
 
             {!loading && !error && (
                 <div className="breadcrumb">
@@ -357,6 +365,14 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
                 )}
                 <div className="sub-main-content">
                     <div className="customer-products">
+                        {loading && (
+                            <div className="full-page-loading">
+                                <div className="loading-content">
+                                    <ClipLoader size={50} color="#4450A2" />
+                                    <p>Loading...</p>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="customer-products-section">
                             {categories.map((subcategory) => (

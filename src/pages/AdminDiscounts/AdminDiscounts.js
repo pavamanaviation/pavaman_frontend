@@ -18,6 +18,7 @@ const AdminDiscountProducts = () => {
   const adminId = sessionStorage.getItem("admin_id");
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
@@ -54,6 +55,7 @@ const AdminDiscountProducts = () => {
 
   const downloadExcel = async () => {
     try {
+      setIsDownloading(true);
       const response = await axios.post(
         `${API_BASE_URL}/download-discount-products-excel`,
         { admin_id: adminId },
@@ -69,6 +71,9 @@ const AdminDiscountProducts = () => {
     } catch (error) {
       displayPopup('Failed to download Excel.', "error");
 
+    }
+    finally {
+      setIsDownloading(false);
     }
   };
 
@@ -105,7 +110,15 @@ const AdminDiscountProducts = () => {
         <div className="discount-buttons">
           <button onClick={addDiscount}>Add Discount</button>
 
-          <button onClick={downloadExcel}>Download Excel</button>
+          <button onClick={downloadExcel} disabled={isDownloading}>
+            {isDownloading ? (
+              <>
+                <ClipLoader size={15} color="#ffffff" /> Downloading...
+              </>
+            ) : (
+              'Download Excel'
+            )}
+          </button>
         </div>
       </div>
       <div className="admin-popup">
