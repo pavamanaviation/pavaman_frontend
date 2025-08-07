@@ -260,6 +260,7 @@ const FilteredProducts = () => {
             displayPopup("An error occurred while adding to wishlist.", "error");
         }
     };
+  const [isLoading, setIsLoading] = useState(true);
 
     if (isLoading) {
         return (

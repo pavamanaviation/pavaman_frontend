@@ -16,6 +16,7 @@ const AdminAddDiscount = () => {
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
