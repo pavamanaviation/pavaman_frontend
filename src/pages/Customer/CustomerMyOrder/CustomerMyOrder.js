@@ -41,7 +41,7 @@ const CustomerMyOrders = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -403,6 +403,34 @@ const CustomerMyOrders = () => {
   const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
 
+  const getStatusText = (product) => {
+  const paymentStatus = product.payment_status?.toLowerCase().trim();
+
+  if (product.delivery_status === "Delivered") {
+    return "Delivered";
+  } else if (product.shipping_status === "Shipped") {
+    return "Shipped, item will be delivered soon";
+  } else if (paymentStatus === "success" || paymentStatus === "payment successful") {
+    return "Payment successful. Order placed, item will be shipped soon";
+  } else {
+    return `Payment Status: ${product.payment_status || "Unknown"}`;
+  }
+};
+
+const getStatusClass = (product) => {
+  const paymentStatus = product.payment_status?.toLowerCase().trim();
+
+  if (product.delivery_status === "Delivered") {
+    return "delivery_status";
+  } else if (product.shipping_status === "Shipped") {
+    return "shipping_status";
+  } else if (paymentStatus === "success" || paymentStatus === "payment successful") {
+    return "order_placed";
+  } else {
+    return "payment_pending";
+  }
+};
+
   return (
     <div className="my-orders-wrapper container">
       <div className="breadcrumb-order">
@@ -504,17 +532,9 @@ const CustomerMyOrders = () => {
                         )}
                         {product.gst && parseFloat(product.gst) > 0 && <p className="gst-myorder">GST: {product.gst}</p>}
 
-                        <p className={product.delivery_status === "Delivered"
-                          ? "delivery_status"
-                          : product.shipping_status === "Shipped"
-                            ? "shipping_status"
-                            : "order_placed"}>
-                          {product.delivery_status === "Delivered"
-                            ? "Delivered"
-                            : product.shipping_status === "Shipped"
-                              ? "Shipped, Item will be delivered soon"
-                              : "Order Placed. Item will be shipped soon"}
-                        </p>
+                        <p className={getStatusClass(product)}>
+  {getStatusText(product)}
+</p>
 
                         {product.delivery_status === "Delivered" && product.rating && (
                           <div className="product-rating">

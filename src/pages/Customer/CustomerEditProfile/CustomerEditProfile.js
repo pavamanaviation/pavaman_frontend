@@ -17,7 +17,7 @@ const CustomerEditProfile = () => {
         setShowPopup(true);
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
     const [formData, setFormData] = useState({
         first_name: "",
@@ -37,7 +37,7 @@ const CustomerEditProfile = () => {
     }, [customerData]);
 
     if (!customerData) {
-        return <div className="edit-profile-container"><p>Loading customer data...</p></div>;
+        return <div className="edit-profile-container"><p>Loading...</p></div>;
     }
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -61,7 +61,7 @@ const CustomerEditProfile = () => {
 
             if (response.ok) {
                 displayPopup("Profile updated successfully!", "success");
-                setTimeout(() => navigate("/profile"), 3000);
+                setTimeout(() => navigate("/profile"), 5000);
             } else {
                 displayPopup(result.error || "Failed to update profile", "error");
             }

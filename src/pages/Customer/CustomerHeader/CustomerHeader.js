@@ -99,7 +99,7 @@ const CustomerHeader = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
 
   const fetchCategories = async () => {

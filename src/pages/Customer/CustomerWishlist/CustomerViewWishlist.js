@@ -22,7 +22,7 @@ const ViewWishlist = () => {
 
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
 
     const [currentPage, setCurrentPage] = useState(1);

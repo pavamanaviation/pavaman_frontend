@@ -32,7 +32,7 @@ const EditSubcategory = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
 
   const handleFileChange = (e) => {
@@ -76,7 +76,7 @@ const EditSubcategory = () => {
         displayPopup("Category updated successfully!", "success");
         setTimeout(() => {
         navigate("/view-subcategories", { state: { category_id, category_name,successMessage: "Subcategory updated successfully!"  } });
-      }, 2000);
+      }, 5000);
     } else {
         setError(data.error || "Failed to update subcategory.");
         displayPopup(data.error || "Failed to update subcategory.", "error");

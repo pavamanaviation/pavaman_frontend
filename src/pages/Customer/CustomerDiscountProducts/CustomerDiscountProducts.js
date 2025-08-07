@@ -32,7 +32,7 @@ const ViewDiscountedProducts = ({ slidesToShow = 5 }) => {
 
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
 
     const fetchData = async () => {

@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { PiShareFatFill } from "react-icons/pi";
 import API_BASE_URL from "../../../config";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { ClipLoader } from "react-spinners";
 
 const CustomerViewProductDetails = () => {
     const location = useLocation();
@@ -29,6 +30,9 @@ const CustomerViewProductDetails = () => {
     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
     const [showPopup, setShowPopup] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
+    const [addToCartLoading, setAddToCartLoading] = useState(false);
+const [buyNowLoading, setBuyNowLoading] = useState(false);
+const [wishlistLoading, setWishlistLoading] = useState(false);
 
 
     const displayPopup = (text, type = "success") => {
@@ -37,7 +41,7 @@ const CustomerViewProductDetails = () => {
 
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
 
 
@@ -116,6 +120,7 @@ const CustomerViewProductDetails = () => {
 
 
     const handleAddCart = async (product_id) => {
+         setAddToCartLoading(true);
         const customer_id = localStorage.getItem("customer_id");
 
 
@@ -157,8 +162,12 @@ const CustomerViewProductDetails = () => {
         } catch (error) {
             displayPopup("An unexpected error occurred while adding to cart.", error, "error");
         }
+         finally {
+        setAddToCartLoading(false);
+    }
     };
     const handleBuyNow = async (product_id) => {
+        setBuyNowLoading(true);
         const customer_id = localStorage.getItem("customer_id");
         if (!customer_id) {
             displayPopup(
@@ -198,6 +207,8 @@ const CustomerViewProductDetails = () => {
             }
         } catch (error) {
             displayPopup("An unexpected error occurred while placing the order.", error, "error");
+        }finally{
+            setBuyNowLoading(false);
         }
     };
     const handleDownloadMaterialFile = async (productId) => {
@@ -266,6 +277,7 @@ const CustomerViewProductDetails = () => {
     };
 
     const toggleWishlist = async () => {
+        setWishlistLoading(true);
         const customer_id = localStorage.getItem("customer_id");
         if (!customer_id) {
             displayPopup(
@@ -297,13 +309,22 @@ const CustomerViewProductDetails = () => {
             }
         } catch (error) {
             displayPopup("Something went wrong while updating wishlist.", "error");
-        }
+        } finally {
+        setWishlistLoading(false);
+    }
     };
 
 
     return (
         <div className="customer-view-details-container container">
-            {loading && <p className="loading">Loading...</p>}
+          {loading && (
+    <div className="full-page-loading">
+        <div className="loading-content">
+            <ClipLoader size={50} color="#4450A2" />
+            <p>Loading...</p>
+        </div>
+    </div>
+)}
             {error && <p className="error-message">{error}</p>}
 
             {!loading && !error && productDetails && (
@@ -371,19 +392,21 @@ const CustomerViewProductDetails = () => {
                         <div className="customer-view-info">
                             <div className="title-share-div">
                                 <div className="customer-view-title">{productDetails.product_name}</div>
-                                <div
-                                    className="wishlist-icon product-wishlist-icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleWishlist();
-                                    }}
-                                >
-                                    {isWishlisted ? (
-                                        <AiFillHeart className="wishlist-heart filled" />
-                                    ) : (
-                                        <AiOutlineHeart className="wishlist-heart" />
-                                    )}
-                                </div>
+                                <div 
+    className="wishlist-icon product-wishlist-icon"
+    onClick={(e) => {
+        e.stopPropagation();
+        toggleWishlist();
+    }}
+>
+    {wishlistLoading ? (
+        <ClipLoader size={20} color="#ff0000" />
+    ) : isWishlisted ? (
+        <AiFillHeart className="wishlist-heart filled" />
+    ) : (
+        <AiOutlineHeart className="wishlist-heart" />
+    )}
+</div>
                                 <div>
                                     <PiShareFatFill className="customer-share-button" onClick={() => handleShare(productDetails)} />
                                     <span>Share</span>
@@ -412,12 +435,26 @@ const CustomerViewProductDetails = () => {
 
                             {(productDetails.availability === "Very Few Products Left" || productDetails.availability === "In Stock") && (
                                 <div className="customer-wishlist-buttons">
-                                    <button className="customer-wishlist-button" onClick={(e) => { e.stopPropagation(); handleAddCart(productDetails.product_id); }}>
-                                        Add to Cart
-                                    </button>
-                                    <button className="customer-wishlist-button" onClick={(e) => { e.stopPropagation(); handleBuyNow(productDetails.product_id); }}>
-                                        Buy Now
-                                    </button>
+                                  <button 
+    className="customer-wishlist-button" 
+    onClick={(e) => { 
+        e.stopPropagation(); 
+        handleAddCart(productDetails.product_id); 
+    }}
+    disabled={addToCartLoading}
+>
+    {addToCartLoading ? <ClipLoader size={20} color="#ffffff" /> : "Add to Cart"}
+</button>
+<button 
+    className="customer-wishlist-button" 
+    onClick={(e) => { 
+        e.stopPropagation(); 
+        handleBuyNow(productDetails.product_id); 
+    }}
+    disabled={buyNowLoading}
+>
+    {buyNowLoading ? <ClipLoader size={20} color="#ffffff" /> : "Buy Now"}
+</button>
                                 </div>
                             )}
                         </div>

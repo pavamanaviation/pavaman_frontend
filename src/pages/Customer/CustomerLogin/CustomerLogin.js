@@ -34,7 +34,7 @@ const CustomerLogin = ({ setCustomerAuthenticated }) => {
 
     const showPopup = (text, type) => {
         setPopupMessage({ text, type });
-        setTimeout(() => setPopupMessage({ text: "", type: "" }), 10000000);
+        setTimeout(() => setPopupMessage({ text: "", type: "" }), 10000);
     };
 
 

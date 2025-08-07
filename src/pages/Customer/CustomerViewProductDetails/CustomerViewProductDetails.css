@@ -1,3 +1,29 @@
+.full-page-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.customer-wishlist-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.wishlist-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .customer-view-details-container {
   max-width: 1200px;
   margin: 0 auto;

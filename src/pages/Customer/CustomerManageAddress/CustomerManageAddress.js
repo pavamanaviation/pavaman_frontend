@@ -5,6 +5,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import "../CustomerManageAddress/CustomerManageAddress.css";
 import PopupMessage from "../../../components/Popup/Popup";
 import API_BASE_URL from "../../../config";
+
 const ManageCustomerAddress = ({ refresh }) => {
     const [addresses, setAddresses] = useState([]);
     const [selectedMenu, setSelectedMenu] = useState(null);
@@ -21,11 +22,10 @@ const ManageCustomerAddress = ({ refresh }) => {
 
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
     useEffect(() => {
         const handleClickOutside = (event) => {
-            // Close only if click is outside the currently open dropdown
             if (!event.target.closest(".manage-menu-container")) {
                 setSelectedMenu(null);
             }

@@ -4,7 +4,7 @@ import "../Popup/Popup.css";
 
 const PopupMessage = ({ message, type, onClose }) => {
     useEffect(() => {
-        const timer = setTimeout(onClose, 10000); 
+        const timer = setTimeout(onClose, 5000); 
         return () => clearTimeout(timer);
     }, [onClose]);
 

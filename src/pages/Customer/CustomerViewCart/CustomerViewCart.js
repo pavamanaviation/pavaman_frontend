@@ -46,7 +46,7 @@ const CustomerViewCart = () => {
 
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
 
 
@@ -192,7 +192,7 @@ const CustomerViewCart = () => {
 
                 setTimeout(() => {
                     setPopupMessage("");
-                }, 3000);
+                }, 5000);
 
                 window.dispatchEvent(new Event("cartUpdated"));
             }
@@ -293,7 +293,7 @@ const CustomerViewCart = () => {
 
                 setTimeout(() => {
                     setPopupMessage("");
-                }, 3000);
+                }, 5000);
             } else {
                 setError(data.error || "Failed to delete selected products.");
                 displayPopup(data.error || "Failed to delete selected products.", "error");

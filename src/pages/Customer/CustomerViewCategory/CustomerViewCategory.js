@@ -193,9 +193,9 @@ const ViewCategoriesAndDiscountedProducts = () => {
                             onClick={() => handleViewProductDetails(product)}
                           >
                             <img src={product.product_image} alt={product.product_name} className="customer-product-image latest-product-image" />
-                            <div className="customer-product-name">{product.product_name}</div>
-                            <div className="customer-discount-section-price">₹{product.final_price}.00 (incl. GST)</div>
-                            <div className="customer-discount-section-original-price">
+                            <div className="customer-product-name latest-product-name">{product.product_name}</div>
+                            <div className="customer-discount-section-price latest-product-price">₹{product.final_price}.00 (incl. GST)</div>
+                            <div className="customer-discount-section-original-price latest-product-price">
                               {product.price !== product.final_price ? (
                                 <>
                                   ₹{product.price}.00 (incl. GST)

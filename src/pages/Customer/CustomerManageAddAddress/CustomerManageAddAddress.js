@@ -44,7 +44,7 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
-        setTimeout(() => setShowPopup(false), 10000);
+        setTimeout(() => setShowPopup(false), 5000);
     };
 
     const fetchLocationDetails = async (pincode) => {
@@ -145,7 +145,7 @@ const CustomerManageAddAddress = ({ onAddressAdded, setShowAddAddressForm }) => 
                     mandal: "",
                     address_type: "home",
                 });
-                setTimeout(onAddressAdded, 3000);
+                setTimeout(onAddressAdded, 5000);
             } else {
                 displayPopup(data.error || "Failed to add address.", "error");
             }

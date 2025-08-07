@@ -7,6 +7,7 @@ import CarouselLanding from "../CustomerCarousel/CustomerCarousel";
 import { useNavigate } from "react-router-dom";
 import PopupMessage from "../../../components/Popup/Popup";
 import { Link } from "react-router-dom";
+import "./LatestProducts.css";
 
 const LatestProducts = () => {
     const [products, setProducts] = useState([]);
@@ -31,7 +32,7 @@ const LatestProducts = () => {
 
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
 
 

@@ -34,7 +34,7 @@ const displayPopup = (text, type = "success") => {
 
   setTimeout(() => {
     setShowPopup(false);
-  }, 10000);
+  }, 5000);
 };
 
   useEffect(() => {
@@ -189,7 +189,7 @@ const displayPopup = (text, type = "success") => {
     <div className="container">
 
 
-      {loading && <p className="loading">Loading product details...</p>}
+      {loading && <p className="loading">Loading...</p>}
       {error && <p className="error">{error}</p>}
       <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />

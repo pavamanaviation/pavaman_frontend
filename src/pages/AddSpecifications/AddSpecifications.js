@@ -19,7 +19,7 @@ const AddSpecification = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
   const handleIncrement = () => {
     setNumSpecifications((prev) => prev + 1);

@@ -37,7 +37,7 @@ const AddProduct = () => {
         setShowPopup(true);
         setTimeout(() => {
             setShowPopup(false);
-        }, 10000);
+        }, 5000);
     };
 
     useEffect(() => {

@@ -32,7 +32,7 @@ const ViewSubcategories = ({ subcategories, setSubcategories }) => {
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
     setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 10000);
+    setTimeout(() => setShowPopup(false), 5000);
   };
 
   useEffect(() => {
@@ -141,7 +141,7 @@ const ViewSubcategories = ({ subcategories, setSubcategories }) => {
       
         setTimeout(() => {
           displayPopup("Subcategory deleted successfully!", "success");
-        }, 100); 
+        }, 5000); 
       }
        else {
         setError(data.error || "Failed to delete subcategory.");

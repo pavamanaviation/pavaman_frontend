@@ -22,7 +22,7 @@ const AdminRatings = () => {
     setShowPopup(true);
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
   useEffect(() => {
     const fetchFeedback = async () => {

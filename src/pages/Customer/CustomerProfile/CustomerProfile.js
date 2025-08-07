@@ -59,7 +59,7 @@ const CustomerProfile = ({ refresh }) => {
   const triggerPopup = (text, type) => {
     setPopupMessage({ text, type });
     setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 3000);
+    setTimeout(() => setShowPopup(false), 5000);
   };
 
   useEffect(() => {

@@ -27,7 +27,7 @@ const ViewProducts = ({ products, setProducts }) => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const ViewProducts = ({ products, setProducts }) => {
       const timer = setTimeout(() => {
         setShowActionSuccessPopup(false);
         setMessage("");
-      }, 3000);
+      }, 5000);
 
       return () => clearTimeout(timer);
     }

@@ -30,7 +30,7 @@ const EditCategory = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
   
   useEffect(() => {
@@ -104,7 +104,7 @@ const EditCategory = () => {
         displayPopup("Category updated successfully!", "success");
         setTimeout(() => {
           navigate("/view-categories", { state: { successMessage: "Category updated successfully!" } });
-        }, 2000); 
+        }, 5000); 
         
       } else {
         setError(data.error || "Failed to update category.");

@@ -31,7 +31,7 @@ const AddCustomerAddress = ({ onAddressAdded }) => {
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
-        setTimeout(() => setShowPopup(false), 10000);
+        setTimeout(() => setShowPopup(false), 5000);
     };
 
     const handleChange = (e) => {

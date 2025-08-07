@@ -24,7 +24,7 @@ const EditSpecification = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
   
   const handleChange = (index, field, value) => {
@@ -50,7 +50,7 @@ const EditSpecification = () => {
         displayPopup("Specifications updated successfully!","success");
         setTimeout(() => {
         navigate(-1);
-      }, 2000); 
+      }, 5000); 
       } else {
         displayPopup("Failed to update specifications.","error");
       }

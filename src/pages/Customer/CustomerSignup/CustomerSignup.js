@@ -25,7 +25,7 @@ const CustomerSignup = () => {
 
     const showPopup = (text, type) => {
         setPopupMessage({ text, type });
-        setTimeout(() => setPopupMessage({ text: "", type: "" }), 10000);
+        setTimeout(() => setPopupMessage({ text: "", type: "" }), 5000);
     };
 
     const handleChange = (e) => {

@@ -26,7 +26,7 @@ const ViewCategories = ({ categories, setCategories }) => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 10000);
+    }, 5000);
   };
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const ViewCategories = ({ categories, setCategories }) => {
         setShowDeletePopup(false);
         setTimeout(() => {
           setCategories(categories.filter((category) => category.category_id !== categoryToDelete));
-        }, 100);
+        }, 5000);
       }
       else {
         displayPopup(data.error || "Failed to delete category.", "error");

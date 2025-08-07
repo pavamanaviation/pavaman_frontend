@@ -281,7 +281,11 @@
 }
 
 .order_placed{
-  color: #4450A2;
+  color:green;
+}
+
+.payment_pending {
+  color: red;
 }
 
 .clear-filters-button {
