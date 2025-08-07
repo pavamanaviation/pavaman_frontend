@@ -1,32 +1,151 @@
-import{ useEffect,useState } from "react";
+// import{ useEffect,useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import PopupMessage from "../../../components/Popup/Popup";
+// import API_BASE_URL from "../../../config";
+// const RazorpayPayment = ({ orderSummary }) => {
+//     const navigate = useNavigate();
+//     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
+//     const [showPopup, setShowPopup] = useState(false);
+
+//     const displayPopup = (text, type = "success") => {
+//         setPopupMessage({ text, type });
+//         setShowPopup(true);
+
+//         setTimeout(() => {
+//             setShowPopup(false);
+//         }, 10000);
+//     };
+
+//     useEffect(() => {
+//         if (orderSummary && orderSummary.orders?.length > 0) {
+//             handlePayment();
+//         }
+//         console.log(orderSummary)
+//     }, [orderSummary]);
+    
+
+//     const handlePayment = async () => {
+//         const customerId = localStorage.getItem("customer_id");
+
+//         if (!customerId || !orderSummary.orders.length) {
+//             displayPopup("Customer ID and Order details are required.", "error");
+//             return;
+//         }
+
+//         const orderProducts = orderSummary.orders.map(order => ({
+//             order_id: order.order_id,
+//             product_id: order.product_id,
+            
+//         }));
+
+//         try {
+//             const response = await fetch(`${API_BASE_URL}/create-razorpay-order`, {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify({ customer_id: customerId, order_products: orderProducts }),
+//             });
+
+//             const orderData = await response.json();
+//             const product_order_id = orderData.product_order_id;
+//             if (!response.ok) throw new Error(orderData.error || "Failed to create Razorpay order.");
+
+//             const options = {
+//                 key: orderData.razorpay_key,
+//                 amount: orderData.total_amount * 100,
+//                 currency: "INR",
+//                 name: "Dronekits",
+//                 description: `Payment for Order(s): ${orderProducts.map(o => o.order_id).join(", ")}`,
+//                 order_id: orderData.razorpay_order_id,
+//                 handler: async (paymentResponse) => {
+//                     const verifyResponse = await fetch(`${API_BASE_URL}/razorpay-callback`, {
+//                         method: "POST",
+//                         headers: { "Content-Type": "application/json" },
+//                         body: JSON.stringify({
+
+//                             razorpay_payment_id: paymentResponse.razorpay_payment_id,
+//                             razorpay_order_id: paymentResponse.razorpay_order_id,
+//                             razorpay_signature: paymentResponse.razorpay_signature,
+//                             customer_id: customerId,
+//                             order_products: orderProducts,
+//                              product_order_id: product_order_id,
+//                             address_id: orderSummary.shippingAddress?.address_id
+
+//                         }),
+//                     });
+
+//                     const verifyData = await verifyResponse.json();
+//                     if (verifyResponse.ok) {
+//                         displayPopup("Payment Successful!", "success");
+//                          setTimeout(() => {
+//                         navigate("/my-orders");
+//                          }, 3000);
+//                     } else {
+//                         displayPopup("Payment Failed: " + verifyData.error,"error");
+//                     }
+//                 },
+//                 prefill: {
+//                     name: orderData.customer_name || "Customer",
+//                     email: orderData.email || "customer@example.com",
+//                     contact: orderData.customer_mobile || "9876543210",
+//                 },
+//                 theme: { color: "#3399cc" },
+//             };
+
+//             const razorpay = new window.Razorpay(options);
+//             razorpay.open();
+//         } catch (error) {
+//             displayPopup("Error: " + error.message,"error");
+//         }
+//     };
+//     return (
+//         <div className="popup-cart">
+//         {showPopup && (
+//              <PopupMessage
+//                  message={popupMessage.text}  
+//                  type={popupMessage.type}
+//                  onClose={() => setShowPopup(false)}
+//              />
+//          )}
+//          </div>
+//     );
+// };
+// export default RazorpayPayment;
+
+
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PopupMessage from "../../../components/Popup/Popup";
 import API_BASE_URL from "../../../config";
-const RazorpayPayment = ({ orderSummary }) => {
+
+const RazorpayPayment = ({ orderSummary, setPaymentLoading }) => {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
     const [showPopup, setShowPopup] = useState(false);
+    const hasRun = useRef(false); // ✅ prevents double call
 
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
-
-        setTimeout(() => {
-            setShowPopup(false);
-        }, 10000);
+        setTimeout(() => setShowPopup(false), 10000);
     };
 
+   useEffect(() => {
+    return () => {
+        if (setPaymentLoading) {
+            setPaymentLoading(false);
+        }
+    };
+}, [setPaymentLoading]);
+
     useEffect(() => {
-        if (orderSummary && orderSummary.orders?.length > 0) {
+        if (!hasRun.current && orderSummary && orderSummary.orders?.length > 0) {
+            hasRun.current = true; // ✅ lock it from calling again
             handlePayment();
         }
-        console.log(orderSummary)
     }, [orderSummary]);
-    
 
     const handlePayment = async () => {
         const customerId = localStorage.getItem("customer_id");
-
         if (!customerId || !orderSummary.orders.length) {
             displayPopup("Customer ID and Order details are required.", "error");
             return;
@@ -34,19 +153,21 @@ const RazorpayPayment = ({ orderSummary }) => {
 
         const orderProducts = orderSummary.orders.map(order => ({
             order_id: order.order_id,
-            product_id: order.product_id,
-            
+            product_id: order.product_id
         }));
 
         try {
             const response = await fetch(`${API_BASE_URL}/create-razorpay-order`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id: customerId, order_products: orderProducts }),
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    order_products: orderProducts
+                }),
             });
 
             const orderData = await response.json();
-            const product_order_id = orderData.product_order_id;
+
             if (!response.ok) throw new Error(orderData.error || "Failed to create Razorpay order.");
 
             const options = {
@@ -56,37 +177,14 @@ const RazorpayPayment = ({ orderSummary }) => {
                 name: "Dronekits",
                 description: `Payment for Order(s): ${orderProducts.map(o => o.order_id).join(", ")}`,
                 order_id: orderData.razorpay_order_id,
-                handler: async (paymentResponse) => {
-                    const verifyResponse = await fetch(`${API_BASE_URL}/razorpay-callback`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-
-                            razorpay_payment_id: paymentResponse.razorpay_payment_id,
-                            razorpay_order_id: paymentResponse.razorpay_order_id,
-                            razorpay_signature: paymentResponse.razorpay_signature,
-                            customer_id: customerId,
-                            order_products: orderProducts,
-                             product_order_id: product_order_id,
-                            address_id: orderSummary.shippingAddress?.address_id
-
-                        }),
-                    });
-
-                    const verifyData = await verifyResponse.json();
-                    if (verifyResponse.ok) {
-                        displayPopup("Payment Successful!", "success");
-                         setTimeout(() => {
-                        navigate("/my-orders");
-                         }, 3000);
-                    } else {
-                        displayPopup("Payment Failed: " + verifyData.error,"error");
-                    }
+                handler: async () => {
+                    displayPopup("Payment Successful!", "success");
+                    setTimeout(() => navigate("/my-orders"), 3000);
                 },
                 prefill: {
-                    name: orderSummary.customer_name || "Customer",
-                    email: orderSummary.customer_email || "customer@example.com",
-                    contact: orderSummary.customer_mobile || "9876543210",
+                    name: orderData.customer_name || "Customer",
+                    email: orderData.email || "customer@example.com",
+                    contact: orderData.mobile_no || "9876543210",
                 },
                 theme: { color: "#3399cc" },
             };
@@ -94,19 +192,134 @@ const RazorpayPayment = ({ orderSummary }) => {
             const razorpay = new window.Razorpay(options);
             razorpay.open();
         } catch (error) {
-            displayPopup("Error: " + error.message,"error");
+            displayPopup("Error: " + error.message, "error");
         }
     };
+
     return (
         <div className="popup-cart">
-        {showPopup && (
-             <PopupMessage
-                 message={popupMessage.text}  
-                 type={popupMessage.type}
-                 onClose={() => setShowPopup(false)}
-             />
-         )}
-         </div>
+            {showPopup && (
+                <PopupMessage
+                    message={popupMessage.text}
+                    type={popupMessage.type}
+                    onClose={() => setShowPopup(false)}
+                />
+            )}
+        </div>
     );
 };
+
 export default RazorpayPayment;
+
+// import{ useEffect,useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import PopupMessage from "../../../components/Popup/Popup";
+// import API_BASE_URL from "../../../config";
+// const RazorpayPayment = ({ orderSummary }) => {
+//     const navigate = useNavigate();
+//     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
+//     const [showPopup, setShowPopup] = useState(false);
+
+//     const displayPopup = (text, type = "success") => {
+//         setPopupMessage({ text, type });
+//         setShowPopup(true);
+
+//         setTimeout(() => {
+//             setShowPopup(false);
+//         }, 10000);
+//     };
+
+//     useEffect(() => {
+//         if (orderSummary && orderSummary.orders?.length > 0) {
+//             handlePayment();
+//         }
+//         console.log(orderSummary)
+//     }, [orderSummary]);
+    
+
+//     const handlePayment = async () => {
+//         const customerId = localStorage.getItem("customer_id");
+
+//         if (!customerId || !orderSummary.orders.length) {
+//             displayPopup("Customer ID and Order details are required.", "error");
+//             return;
+//         }
+
+//         const orderProducts = orderSummary.orders.map(order => ({
+//             order_id: order.order_id,
+//             product_id: order.product_id,
+            
+//         }));
+
+//         try {
+//             const response = await fetch(${API_BASE_URL}/create-razorpay-order, {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify({ customer_id: customerId, order_products: orderProducts }),
+//             });
+
+//             const orderData = await response.json();
+//             const product_order_id = orderData.product_order_id;
+//             if (!response.ok) throw new Error(orderData.error || "Failed to create Razorpay order.");
+
+//             const options = {
+//                 key: orderData.razorpay_key,
+//                 amount: orderData.total_amount * 100,
+//                 currency: "INR",
+//                 name: "Dronekits",
+//                 description: Payment for Order(s): ${orderProducts.map(o => o.order_id).join(", ")},
+//                 order_id: orderData.razorpay_order_id,
+//                 handler: async (paymentResponse) => {
+//                     const verifyResponse = await fetch(${API_BASE_URL}/razorpay-callback, {
+//                         method: "POST",
+//                         headers: { "Content-Type": "application/json" },
+//                         body: JSON.stringify({
+
+//                             razorpay_payment_id: paymentResponse.razorpay_payment_id,
+//                             razorpay_order_id: paymentResponse.razorpay_order_id,
+//                             razorpay_signature: paymentResponse.razorpay_signature,
+//                             customer_id: customerId,
+//                             order_products: orderProducts,
+//                              product_order_id: product_order_id,
+//                             address_id: orderSummary.shippingAddress?.address_id
+
+//                         }),
+//                     });
+
+//                     const verifyData = await verifyResponse.json();
+//                     if (verifyResponse.ok) {
+//                         displayPopup("Payment Successful!", "success");
+//                          setTimeout(() => {
+//                         navigate("/my-orders");
+//                          }, 3000);
+//                     } else {
+//                         displayPopup("Payment Failed: " + verifyData.error,"error");
+//                     }
+//                 },
+//                 prefill: {
+//                     name: orderSummary.customer_name || "Customer",
+//                     email: orderSummary.customer_email || "customer@example.com",
+//                     contact: orderSummary.customer_mobile || "9876543210",
+//                 },
+//                 theme: { color: "#3399cc" },
+//             };
+
+//             const razorpay = new window.Razorpay(options);
+//             razorpay.open();
+//         } catch (error) {
+//             displayPopup("Error: " + error.message,"error");
+//         }
+//     };
+//     return (
+//         <div className="popup-cart">
+//         {showPopup && (
+//              <PopupMessage
+//                  message={popupMessage.text}  
+//                  type={popupMessage.type}
+//                  onClose={() => setShowPopup(false)}
+//              />
+//          )}
+//          </div>
+//     );
+// };
+// export default RazorpayPayment;

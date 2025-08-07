@@ -1,9 +1,11 @@
-import{ useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import EditAddress from "../CustomerEditAddress/CustomerEditAddress";
 import "../CustomerViewAddress/CustomerViewAddress.css";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import PopupMessage from "../../../components/Popup/Popup";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
+
 const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHere, onAddressSelect, onAddAddressClick }) => {
     const [addresses, setAddresses] = useState([]);
     const [editingAddress, setEditingAddress] = useState(null);
@@ -13,9 +15,11 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
     const [addressToDelete, setAddressToDelete] = useState(null);
     const [menuOpenFor, setMenuOpenFor] = useState(null);
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
-
+    const [loading, setLoading] = useState(false);
     const customerId = localStorage.getItem("customer_id");
     const menuRef = useRef(null);
+    const menuRefs = useRef({});
+
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
@@ -25,12 +29,20 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
         }, 10000);
     };
 
-        useEffect(() => {
+    useEffect(() => {
         function handleClickOutside(event) {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
+            let clickedInside = false;
+            Object.values(menuRefs.current).forEach(ref => {
+                if (ref && ref.contains(event.target)) {
+                    clickedInside = true;
+                }
+            });
+
+            if (!clickedInside) {
                 setMenuOpenFor(null);
             }
         }
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -39,6 +51,7 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
 
     const fetchAddresses = async () => {
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/view-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -51,11 +64,13 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
                 if (data.error !== "No address found for the given customer ID.") {
                     displayPopup(data.error || "Failed to fetch addresses", "error");
                 }
-                setAddresses([]); 
+                setAddresses([]);
             }
 
         } catch (error) {
             displayPopup("Something went wrong while fetching addresses.", "error");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -87,6 +102,7 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
     const confirmDelete = async () => {
         setShowConfirmPopup(false);
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/delete-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -101,6 +117,8 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
             }
         } catch (error) {
             displayPopup("Something went wrong during deletion", "error");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -123,6 +141,7 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
         }
 
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/products/order-multiple-products-summary`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -145,7 +164,7 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
                     total_amount: data.total_amount,
                     product_name: data.product_name,
                 });
-                onDeliverHere();  
+                onDeliverHere();
                 if (selectedAddr) {
                     onAddressSelect(selectedAddr);
                 }
@@ -154,12 +173,26 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
             }
         } catch (error) {
             displayPopup("Something went wrong. Try again.", "error");
+        } finally {
+            setLoading(false);
         }
     };
 
-       const handleMenuToggle = (addressId) => {
+    const handleMenuToggle = (addressId) => {
         setMenuOpenFor((prev) => (prev === addressId ? null : addressId));
     };
+
+
+    if (loading && addresses.length === 0) {
+        return (
+            <div className="full-page-loading">
+                <div className="loading-content">
+                    <ClipLoader size={50} color="#4450A2" />
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="address-list container">
@@ -226,15 +259,18 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
 
                             </div>
                             {!isAddOpen && (
-                                <div className="menu-container"  ref={menuRef}>
+                                <div className="menu-container" ref={el => (menuRefs.current[address.address_id] = el)}>
+
                                     <BsThreeDotsVertical
                                         className="menu-icon"
-                                       onClick={() => handleMenuToggle(address.address_id)}
+                                        onClick={() => handleMenuToggle(address.address_id)}
                                     />
                                     {menuOpenFor === address.address_id && (
                                         <div className="manage-edit-menu-dropdown">
                                             <button className="manage-edit-btn" onClick={() => handleEditClick(address)}>Edit</button>
-                                            <button className="manage-delete-btn" onClick={() => handleDeleteClick(address.address_id)}>Delete</button>
+                                            <button className="manage-delete-btn" onClick={() => handleDeleteClick(address.address_id)} disabled={loading}>
+                                                {loading ? <ClipLoader size={15} color="#ffffff" /> : "Delete"}
+                                            </button>
                                         </div>
                                     )}
                                 </div>
@@ -249,8 +285,8 @@ const ViewCustomerAddress = ({ refresh, setOrderSummary, isAddOpen, onDeliverHer
                         )}
 
                         {selectedAddressId === address.address_id && (
-                            <button className="address-del-btn" onClick={handleOrderSummary}>
-                                Deliver Here
+                            <button className="address-del-btn" onClick={handleOrderSummary} disabled={loading}>
+                                {loading ? <ClipLoader size={15} color="#ffffff" /> : "Deliver Here"}
                             </button>
                         )}
                     </div>
