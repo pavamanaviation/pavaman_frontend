@@ -83,7 +83,6 @@ const Navbar = () => {
       );
 
       const data = await response.json();
-      console.log("Products API response:", data);
 
       setProducts((prev) => ({
         ...prev,
@@ -97,8 +96,6 @@ const Navbar = () => {
 
 
   useEffect(() => {
-    console.log("Hovered Subcategory Changed:", hoveredSubcategory);
-    console.log("Products State Updated:", products);
   }, [hoveredSubcategory, products]);
 
   return (

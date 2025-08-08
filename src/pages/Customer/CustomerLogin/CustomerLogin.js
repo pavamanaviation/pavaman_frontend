@@ -90,7 +90,6 @@ const CustomerLogin = ({ setCustomerAuthenticated }) => {
 
             if (res.data.existing_customer) {
                 if (res.data.register_status === 0) {
-                    console.log("Setting Google User ID:", res.data.customer_id);
                     setGoogleUserId(res.data.customer_id);
                     setShowMobilePopup(true);
                 } else {
@@ -161,10 +160,6 @@ const CustomerLogin = ({ setCustomerAuthenticated }) => {
             showPopup("Please enter a valid mobile number.", "error");
             return;
         }
-
-
-        console.log("Submitting Data:", { customer_id: googleUserId, mobile_no: mobileNumber });
-
         try {
             const response = await axios.post(`${API_BASE_URL}/google-submit-mobile`, {
                 customer_id: googleUserId,

@@ -31,8 +31,9 @@ const CustomerViewProductDetails = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [addToCartLoading, setAddToCartLoading] = useState(false);
-const [buyNowLoading, setBuyNowLoading] = useState(false);
-const [wishlistLoading, setWishlistLoading] = useState(false);
+    const [buyNowLoading, setBuyNowLoading] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
+    const [downloadLoading, setDownloadLoading] = useState(false);
 
 
     const displayPopup = (text, type = "success") => {
@@ -46,9 +47,6 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
 
 
     useEffect(() => {
-        console.log("category_name:", category_name);
-        console.log("sub_category_name:", sub_category_name);
-        console.log("productName:", product_name);
         if (!category_name || !sub_category_name || !product_name) {
             setError("Category name, subcategory name, or product name is missing.");
             setLoading(false);
@@ -120,7 +118,7 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
 
 
     const handleAddCart = async (product_id) => {
-         setAddToCartLoading(true);
+        setAddToCartLoading(true);
         const customer_id = localStorage.getItem("customer_id");
 
 
@@ -162,9 +160,9 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
         } catch (error) {
             displayPopup("An unexpected error occurred while adding to cart.", error, "error");
         }
-         finally {
-        setAddToCartLoading(false);
-    }
+        finally {
+            setAddToCartLoading(false);
+        }
     };
     const handleBuyNow = async (product_id) => {
         setBuyNowLoading(true);
@@ -207,11 +205,12 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
             }
         } catch (error) {
             displayPopup("An unexpected error occurred while placing the order.", error, "error");
-        }finally{
+        } finally {
             setBuyNowLoading(false);
         }
     };
     const handleDownloadMaterialFile = async (productId) => {
+        setDownloadLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/download-material/${productId}/`);
 
@@ -232,6 +231,8 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
         } catch (error) {
             console.error("Download error:", error);
             displayPopup("Failed to download the material file.", "error");
+        } finally {
+            setDownloadLoading(false);
         }
     };
 
@@ -277,54 +278,56 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
     };
 
     const toggleWishlist = async () => {
-        setWishlistLoading(true);
         const customer_id = localStorage.getItem("customer_id");
+        const product_id = productDetails?.product_id;
+
         if (!customer_id) {
             displayPopup(
-                <>
-                    Please <Link to="/customer-login" className="popup-link">log in</Link> to manage wishlist.
-                </>,
+                <>Please <Link to="/customer-login" className="popup-link">log in</Link> to manage wishlist.</>,
                 "error"
             );
             return;
         }
 
+        const endpoint = isWishlisted ? "remove-wishlist" : "add-to-wishlist";
+
         try {
-            const response = await fetch(`${API_BASE_URL}/add-to-wishlist`, {
+            setWishlistLoading(true);
+            const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    customer_id,
-                    product_id: productDetails.product_id,
-                }),
+                body: JSON.stringify({ customer_id, product_id }),
             });
 
             const data = await response.json();
 
             if (data.status_code === 200) {
-                setIsWishlisted((prev) => !prev);
-                displayPopup(data.message || "Wishlist updated!", "success");
+                displayPopup(
+                    isWishlisted ? "Removed from wishlist." : "Added to wishlist.",
+                    "success"
+                );
+                setIsWishlisted(!isWishlisted);
             } else {
-                displayPopup(data.error || "Failed to update wishlist.", "error");
+                displayPopup(data.message || "Something went wrong.", "error");
             }
         } catch (error) {
-            displayPopup("Something went wrong while updating wishlist.", "error");
+            displayPopup("An error occurred while updating wishlist.", "error");
         } finally {
-        setWishlistLoading(false);
-    }
+            setWishlistLoading(false);
+        }
     };
 
 
     return (
         <div className="customer-view-details-container container">
-          {loading && (
-    <div className="full-page-loading">
-        <div className="loading-content">
-            <ClipLoader size={50} color="#4450A2" />
-            <p>Loading...</p>
-        </div>
-    </div>
-)}
+            {loading && (
+                <div className="full-page-loading">
+                    <div className="loading-content">
+                        <ClipLoader size={50} color="#4450A2" />
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            )}
             {error && <p className="error-message">{error}</p>}
 
             {!loading && !error && productDetails && (
@@ -392,21 +395,21 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
                         <div className="customer-view-info">
                             <div className="title-share-div">
                                 <div className="customer-view-title">{productDetails.product_name}</div>
-                                <div 
-    className="wishlist-icon product-wishlist-icon"
-    onClick={(e) => {
-        e.stopPropagation();
-        toggleWishlist();
-    }}
->
-    {wishlistLoading ? (
-        <ClipLoader size={20} color="#ff0000" />
-    ) : isWishlisted ? (
-        <AiFillHeart className="wishlist-heart filled" />
-    ) : (
-        <AiOutlineHeart className="wishlist-heart" />
-    )}
-</div>
+                                <div
+                                    className="wishlist-icon product-wishlist-icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleWishlist();
+                                    }}
+                                >
+                                    {wishlistLoading ? (
+                                        <ClipLoader size={20} color="#ff0000" />
+                                    ) : isWishlisted ? (
+                                        <AiFillHeart className="wishlist-heart filled" />
+                                    ) : (
+                                        <AiOutlineHeart className="wishlist-heart" />
+                                    )}
+                                </div>
                                 <div>
                                     <PiShareFatFill className="customer-share-button" onClick={() => handleShare(productDetails)} />
                                     <span>Share</span>
@@ -435,26 +438,26 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
 
                             {(productDetails.availability === "Very Few Products Left" || productDetails.availability === "In Stock") && (
                                 <div className="customer-wishlist-buttons">
-                                  <button 
-    className="customer-wishlist-button" 
-    onClick={(e) => { 
-        e.stopPropagation(); 
-        handleAddCart(productDetails.product_id); 
-    }}
-    disabled={addToCartLoading}
->
-    {addToCartLoading ? <ClipLoader size={20} color="#ffffff" /> : "Add to Cart"}
-</button>
-<button 
-    className="customer-wishlist-button" 
-    onClick={(e) => { 
-        e.stopPropagation(); 
-        handleBuyNow(productDetails.product_id); 
-    }}
-    disabled={buyNowLoading}
->
-    {buyNowLoading ? <ClipLoader size={20} color="#ffffff" /> : "Buy Now"}
-</button>
+                                    <button
+                                        className="customer-wishlist-button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAddCart(productDetails.product_id);
+                                        }}
+                                        disabled={addToCartLoading}
+                                    >
+                                        {addToCartLoading ? <ClipLoader size={20} color="#ffffff" /> : "Add to Cart"}
+                                    </button>
+                                    <button
+                                        className="customer-wishlist-button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleBuyNow(productDetails.product_id);
+                                        }}
+                                        disabled={buyNowLoading}
+                                    >
+                                        {buyNowLoading ? <ClipLoader size={20} color="#ffffff" /> : "Buy Now"}
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -520,7 +523,15 @@ const [wishlistLoading, setWishlistLoading] = useState(false);
                                         </a>
                                     </div>
                                     <div onClick={() => handleDownloadMaterialFile(productDetails.product_id)} className="customer-material-download">
-                                        <button className="download-btn">Download<MdCloudDownload /></button>
+                                        <button className="download-btn" disabled={downloadLoading}>
+                                            {downloadLoading ? (
+                                                <ClipLoader size={20} color="#ffffff" />
+                                            ) : (
+                                                <>
+                                                    Download <MdCloudDownload />
+                                                </>
+                                            )}
+                                        </button>
                                     </div>
                                 </div>
                             )}

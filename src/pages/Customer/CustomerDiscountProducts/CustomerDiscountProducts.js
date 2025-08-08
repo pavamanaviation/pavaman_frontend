@@ -155,41 +155,49 @@ const ViewDiscountedProducts = ({ slidesToShow = 5 }) => {
         });
     };
 
-    const toggleWishlist = async (product_id) => {
-        const customer_id = localStorage.getItem("customer_id");
-        if (!customer_id) {
+const toggleWishlist = async (product_id) => {
+    const customer_id = localStorage.getItem("customer_id");
+    if (!customer_id) {
+        displayPopup(
+            <>
+                Please <Link to="/customer-login" className="popup-link">log in</Link> to manage wishlist.
+            </>,
+            "error"
+        );
+        return;
+    }
+
+    const isInWishlist = wishlist.includes(product_id);
+    const endpoint = isInWishlist ? "remove-wishlist" : "add-to-wishlist";
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customer_id, product_id }),
+        });
+
+        const data = await response.json();
+
+        if (data.status_code === 200) {
             displayPopup(
-                <>
-                    Please <Link to="/customer-login" className="popup-link">log in</Link> to add to wishlist.
-                </>,
-                "error"
+                isInWishlist ? "Removed from wishlist." : "Added to wishlist.",
+                "success"
             );
-            return;
+
+            setWishlist((prev) =>
+                isInWishlist
+                    ? prev.filter((id) => id !== product_id)
+                    : [...prev, product_id]
+            );
+        } else {
+            displayPopup(data.message || "Something went wrong.", "error");
         }
+    } catch (error) {
+        displayPopup("An error occurred while updating wishlist.", "error");
+    }
+};
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/add-to-wishlist`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id, product_id }),
-            });
-            const data = await response.json();
-
-            if (data.status_code === 200) {
-                displayPopup(data.message, "success");
-
-                setWishlist((prev) =>
-                    prev.includes(product_id)
-                        ? prev.filter((id) => id !== product_id)
-                        : [...prev, product_id]
-                );
-            } else {
-                displayPopup(data.message || "Failed to add to wishlist.", "error");
-            }
-        } catch (error) {
-            displayPopup("An error occurred while adding to wishlist.", "error");
-        }
-    };
 
 
     const renderProductCard = (product) => (

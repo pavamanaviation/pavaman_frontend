@@ -6,6 +6,7 @@ import "./CustomerViewWishlist.css";
 import { BiSolidCartAdd } from "react-icons/bi";
 import { useNavigate, Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 const ViewWishlist = () => {
     const [wishlist, setWishlist] = useState([]);
@@ -107,7 +108,6 @@ const ViewWishlist = () => {
             const response = await axios.post(`${API_BASE_URL}/add-cart-product`, {
                 customer_id: customerId,
                 product_id: productId,
-                // quantity: 1,
             });
             if (response.data.status_code === 200) {
                 displayPopup("Product added to cart!");
@@ -152,6 +152,29 @@ const ViewWishlist = () => {
         );
     }
 
+    const toggleWishlist = async (productId) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/remove-wishlist`, {
+                customer_id: customerId,
+                product_id: productId,
+            });
+
+            if (response.data.status === "success") {
+                const updatedWishlist = wishlist.filter(
+                    (item) => item.product_id !== productId
+                );
+                setWishlist(updatedWishlist);
+                setWishlistCount(updatedWishlist.length);
+                displayPopup("Removed from wishlist.");
+            } else {
+                displayPopup("Failed to remove from wishlist.", "error");
+            }
+        } catch (error) {
+            displayPopup("Error removing from wishlist.", "error");
+        }
+    };
+
+
     return (
         <div>
             <div className="wishlist-header">
@@ -177,11 +200,23 @@ const ViewWishlist = () => {
                                 className="customer-product-card"
                                 onClick={() => handleViewProductDetails(product)}
                             >
-                                <img
-                                    src={product.product_image}
-                                    alt={product.product_name}
-                                    className="customer-product-image"
-                                />
+                                <div className="wishlist-image-wrapper">
+                                    <img
+                                        src={product.product_image}
+                                        alt={product.product_name}
+                                        className="customer-product-image"
+                                    />
+                                    <div
+                                        className="wishlist-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleWishlist(product.product_id);
+                                        }}
+                                    >
+                                        <AiFillHeart className="wishlist-heart filled" />
+                                    </div>
+                                </div>
+
                                 <div className="customer-product-name">{product.product_name}</div>
                                 <div className="customer-discount-section-price">
                                     ₹{product.final_price}.00 (incl. GST)

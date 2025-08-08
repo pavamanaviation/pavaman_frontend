@@ -38,6 +38,11 @@ const FilteredProducts = () => {
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
     const [wishlist, setWishlist] = useState([]);
+    const [isPageLoading, setIsPageLoading] = useState(true);
+    const [isFilterLoading, setIsFilterLoading] = useState(false);
+    const [isCartLoading, setIsCartLoading] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(null);
+
 
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
@@ -64,12 +69,16 @@ const FilteredProducts = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({}),
+                body: JSON.stringify({
+                    category_id: category_id,
+                    category_name: categoryName,
+                    customer_id: localStorage.getItem("customer_id") || null,
+
+                }),
             });
 
             const data = await response.json();
 
-            console.log("Fetched categories data:", data);
 
             if (response.ok) {
                 setAllCategories(data.categories);
@@ -86,7 +95,6 @@ const FilteredProducts = () => {
     };
 
     useEffect(() => {
-        console.log("Received Filtered Products in Component:", filteredProducts);
         setProducts(filteredProducts);
 
         if (filteredProducts.length > 0) {
@@ -137,6 +145,7 @@ const FilteredProducts = () => {
 
             return;
         }
+        setIsCartLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/add-cart-product`, {
                 method: "POST",
@@ -152,10 +161,11 @@ const FilteredProducts = () => {
             }
         } catch (error) {
             displayPopup("An unexpected error occurred while adding to cart.", error, "error");
+        } finally {
+            setIsCartLoading(false);
         }
     };
     const fetchFilteredAndSortedProducts = async () => {
-        setLoading(true);
         setError(null);
 
         const hasMin = values[0] !== '';
@@ -189,7 +199,7 @@ const FilteredProducts = () => {
                 sort_by: sortOrder
             };
         }
-
+        setIsFilterLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/filter-and-sort-products`, {
                 method: 'POST',
@@ -213,7 +223,8 @@ const FilteredProducts = () => {
         } catch (error) {
             setError('An error occurred while fetching products.');
         } finally {
-            setLoading(false);
+            setIsFilterLoading(false);
+            setIsPageLoading(false);
         }
     };
     useEffect(() => {
@@ -230,39 +241,47 @@ const FilteredProducts = () => {
         if (!customer_id) {
             displayPopup(
                 <>
-                    Please <Link to="/customer-login" className="popup-link">log in</Link> to add to wishlist.
+                    Please <Link to="/customer-login" className="popup-link">log in</Link> to manage wishlist.
                 </>,
                 "error"
             );
             return;
         }
 
+        const isInWishlist = wishlist.includes(product_id);
+        const endpoint = isInWishlist ? "remove-wishlist" : "add-to-wishlist";
+        setWishlistLoading(product_id);
         try {
-            const response = await fetch(`${API_BASE_URL}/add-to-wishlist`, {
+            const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ customer_id, product_id }),
             });
+
             const data = await response.json();
 
             if (data.status_code === 200) {
-                displayPopup(data.message, "success");
+                displayPopup(
+                    isInWishlist ? "Removed from wishlist." : "Added to wishlist.",
+                    "success"
+                );
 
                 setWishlist((prev) =>
-                    prev.includes(product_id)
+                    isInWishlist
                         ? prev.filter((id) => id !== product_id)
                         : [...prev, product_id]
                 );
             } else {
-                displayPopup(data.message || "Failed to add to wishlist.", "error");
+                displayPopup(data.message || "Something went wrong.", "error");
             }
         } catch (error) {
-            displayPopup("An error occurred while adding to wishlist.", "error");
+            displayPopup("An error occurred while updating wishlist.", "error");
+        } finally {
+            setWishlistLoading(false);
         }
     };
-  const [isLoading, setIsLoading] = useState(true);
 
-    if (isLoading) {
+    if (isPageLoading) {
         return (
             <div className="full-page-loading">
                 <div className="loading-content">
@@ -272,6 +291,7 @@ const FilteredProducts = () => {
             </div>
         );
     }
+
 
     return (
         <div className="customer-dashboard container">
@@ -345,9 +365,18 @@ const FilteredProducts = () => {
                                                 />
                                             )}
                                         />
-                                        <button className="filter-button" onClick={fetchFilteredAndSortedProducts}>
-                                            Filter
+                                        <button
+                                            className="filter-button"
+                                            onClick={fetchFilteredAndSortedProducts}
+                                            disabled={isFilterLoading}
+                                        >
+                                            {isFilterLoading ? (
+                                                <ClipLoader size={20} color="#ffffff" />
+                                            ) : (
+                                                "Filter"
+                                            )}
                                         </button>
+
                                     </div>
                                 </div>
                                 <div className="sorting-section">
@@ -380,12 +409,15 @@ const FilteredProducts = () => {
                                             toggleWishlist(product.product_id);
                                         }}
                                     >
-                                        {wishlist.includes(product.product_id) ? (
+                                        {wishlistLoading === product.product_id ? (
+                                            <ClipLoader size={15} color="#4450A2" />
+                                        ) : wishlist.includes(product.product_id) ? (
                                             <AiFillHeart className="wishlist-heart filled" />
                                         ) : (
                                             <AiOutlineHeart className="wishlist-heart" />
                                         )}
                                     </div>
+
                                     <img
                                         src={Array.isArray(product.product_image_url) ? product.product_image_url[0] : product.product_image_url}
                                         alt={product.product_name}
@@ -412,14 +444,19 @@ const FilteredProducts = () => {
                                                         : "In Stock"}
                                             </span>
                                             {(product.availability === "Very Few Products Left" || product.availability === "In Stock") && (
-                                                <BiSolidCartAdd
-                                                    className="add-to-cart-button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleAddCart(product.product_id);
-                                                    }}
-                                                />
+                                                isCartLoading ? (
+                                                    <ClipLoader size={20} color="#4450A2" />
+                                                ) : (
+                                                    <BiSolidCartAdd
+                                                        className="add-to-cart-button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleAddCart(product.product_id);
+                                                        }}
+                                                    />
+                                                )
                                             )}
+
                                         </div>
                                     </div>
                                 </div>

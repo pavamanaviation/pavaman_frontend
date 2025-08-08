@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PopupMessage from "../../components/Popup/Popup";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
 
 const EditSpecification = () => {
   const navigate = useNavigate();
@@ -16,8 +17,8 @@ const EditSpecification = () => {
   const [specs, setSpecs] = useState(initialSpecs);
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
     setShowPopup(true);
@@ -26,7 +27,7 @@ const EditSpecification = () => {
       setShowPopup(false);
     }, 5000);
   };
-  
+
   const handleChange = (index, field, value) => {
     const updatedSpecs = [...specs];
     updatedSpecs[index][field] = value;
@@ -35,6 +36,8 @@ const EditSpecification = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const requestData = {
       admin_id,
       category_id,
@@ -47,15 +50,17 @@ const EditSpecification = () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/edit-product-specifications`, requestData);
       if (response.data.status_code === 200) {
-        displayPopup("Specifications updated successfully!","success");
+        displayPopup("Specifications updated successfully!", "success");
         setTimeout(() => {
-        navigate(-1);
-      }, 5000); 
+          navigate(-1);
+        }, 5000);
       } else {
-        displayPopup("Failed to update specifications.","error");
+        displayPopup("Failed to update specifications.", "error");
       }
     } catch (error) {
-      displayPopup("Error updating specifications. Please try again.","error");
+      displayPopup("Error updating specifications. Please try again.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,7 +78,7 @@ const EditSpecification = () => {
               type="text"
               value={spec.name}
               onChange={(e) => handleChange(index, "name", e.target.value)}
-              readOnly 
+              readOnly
             />
             <label>Value:</label>
             <input
@@ -83,7 +88,20 @@ const EditSpecification = () => {
             />
           </div>
         ))}
-        <button type="submit">Update Specifications</button>
+        <button
+          type="submit"
+          disabled={loading}
+       
+        >
+          {loading ? (
+            <>
+              <ClipLoader size={18} color="#ffffff" />
+              Updating...
+            </>
+          ) : (
+            "Update Specifications"
+          )}
+        </button>
       </form>
       <button onClick={() => navigate(-1)}>Cancel</button>
     </div>

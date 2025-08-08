@@ -3,6 +3,8 @@ import "./CustomerManageEditAddress.css";
 import PopupMessage from "../../../components/Popup/Popup";
 import PhoneInput from "react-phone-input-2";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
+
 const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
     const [formData, setFormData] = useState({});
     const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
@@ -41,7 +43,7 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
                 longitude: address.longitude || "",
                 state: address.state || "",
                 district: address.district || "",
-                locality:address.locality ||"",
+                locality: address.locality || "",
                 mandal: address.mandal || ""
             });
         }
@@ -93,10 +95,11 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/edit-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id,...formData, mobile_number: `${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `${formData.alternate_mobile}` : "" })
+                body: JSON.stringify({ customer_id, ...formData, mobile_number: `${formData.mobile_number}`, alternate_mobile: formData.alternate_mobile ? `${formData.alternate_mobile}` : "" })
 
             });
             const data = await response.json();
@@ -111,6 +114,8 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
             displayPopup("An unexpected error occurred.", "error");
             onEditCompleted("An unexpected error occurred.");
             console.error("Update error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -132,11 +137,11 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
                 <form onSubmit={handleSubmit} className="form-grid">
                     <div className="form-row">
                         <div className="input-group">
-                            <input className="input-text-field"  type="text" name="first_name" value={formData.first_name || ""} onChange={handleChange} required />
+                            <input className="input-text-field" type="text" name="first_name" value={formData.first_name || ""} onChange={handleChange} required />
                             <label>First Name <span className="required-star">*</span> </label>
                         </div>
                         <div className="input-group">
-                            <input  className="input-text-field"type="text" name="last_name" value={formData.last_name || ""} onChange={handleChange} required />
+                            <input className="input-text-field" type="text" name="last_name" value={formData.last_name || ""} onChange={handleChange} required />
                             <label>Last Name <span className="required-star">*</span></label>
                         </div>
                     </div>
@@ -179,11 +184,11 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
                             <label>Mandal <span className="required-star">*</span></label>
                         </div>
                     </div>
-                
+
                     <div className="form-row">
                         <div className="input-group" style={{ width: "100%" }}>
                             <input className="input-text-field" type="text" name="street" value={formData.street || ""} onChange={handleChange} required />
-                            <label className="address-area">Address <br/>(Area, Street, flat No.)<span className="required-star">*</span></label>
+                            <label className="address-area">Address <br />(Area, Street, flat No.)<span className="required-star">*</span></label>
                         </div>
                     </div>
 
@@ -197,17 +202,17 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
                             <label>Landmark (Optional)</label>
                         </div>
                     </div>
-                     <div className="input-group">
-                            <input
-                                className="input-text-field"
-                                type="text"
-                                name="locality"
-                                value={formData.city}
-                                onChange={handleChange}
-                                required
-                            />
-                            <label>City/Town<span className="required-star">*</span></label>
-                        </div>
+                    <div className="input-group">
+                        <input
+                            className="input-text-field"
+                            type="text"
+                            name="locality"
+                            value={formData.city}
+                            onChange={handleChange}
+                            required
+                        />
+                        <label>City/Town<span className="required-star">*</span></label>
+                    </div>
                     <div className="form-row address-type-container" style={{ flexDirection: "column" }}>
                         <label className="Address-type">Address Type:</label>
                         <div className="address-type-options">
@@ -222,7 +227,18 @@ const ManageEditCustomerAddress = ({ address, onEditCompleted }) => {
                         </div>
                     </div>
                     <div className="cart-actions">
-                        <button className="cart-place-order" type="submit">SAVE</button>
+                        <button
+                            className="cart-place-order"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ClipLoader size={20} color="#ffffff" />
+                            ) : (
+                                "SAVE"
+                            )}
+                        </button>
+
                         <button className="cart-delete-selected" type="button" onClick={() => onEditCompleted("")}>CANCEL</button>
                     </div>
                 </form>

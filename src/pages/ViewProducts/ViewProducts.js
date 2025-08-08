@@ -88,7 +88,6 @@ const ViewProducts = ({ products, setProducts }) => {
   };
 
   const handleEditProduct = (product) => {
-    console.log(product.product_discount )
     navigate("/edit-product", {
       state: {
         category_id,

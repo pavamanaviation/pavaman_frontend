@@ -59,7 +59,6 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
 
         const handleSearch = (e) => {
             const query = e.detail;
-            console.log("🔍 Subcategory search triggered with query:", query);
             if (!query) {
                 fetchSubCategories(category_name);
             } else {
@@ -94,7 +93,6 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
                 setCategories(data.subcategories);
                 setDiscountedProducts(data.discounted_products);
                 const enrichedCategories = (data.all_categories || []).map((cat) => {
-                    console.log("🔍 Mapping category:", cat.category_name, "with subcategories:", cat.subcategories);
                     return {
                         ...cat,
                         subcategories: cat.subcategories || []
@@ -103,10 +101,8 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
 
                 setAllCategories(enrichedCategories);
                 if (enrichedCategories.length > 0 && enrichedCategories[0].subcategories.length > 0) {
-                    console.log("First subcategory:", enrichedCategories[0].subcategories[0]);
                 }
 
-                console.log("✅ Final enrichedCategories", enrichedCategories);
 
                 if (category_id) {
                     setExpandedCategory(category_id);
@@ -132,7 +128,6 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
                 category_id: category_id || localStorage.getItem("category_id"),
                 customer_id: localStorage.getItem("customer_id") || null,
             };
-            console.log("📨 Subcategory search payload:", payload);
 
             const response = await fetch(`${API_BASE_URL}/customer-search-subcategories`, {
                 method: "POST",
@@ -268,59 +263,65 @@ const ViewSubCategoriesAndDiscountedProducts = () => {
                 {(!isMobile || showFilters) && (
                     <div className={`sidebar-filter ${isMobile ? "mobile-visible" : ""}`}>
                         <div className="sidebar-filter-heading">Filter by Price</div>
-                        <div>
-                            <div className="slider-btn">
-                                <Range
-                                    className="price-slider-range"
-                                    values={values}
-                                    step={100}
-                                    min={minPrice}
-                                    max={maxPrice}
-                                    onChange={(newValues) => setValues(newValues)}
-                                    renderTrack={({ props, children }) => (
-                                        <div
-                                            {...props}
-                                            style={{
-                                                ...props.style,
-                                                width: "100%",
-                                                background: "white",
-                                                borderRadius: "4px",
-                                                margin: "20px 0",
-                                                border: "0.5px solid grey",
-                                            }}
-                                        >
-                                            {children}
-                                        </div>
-                                    )}
-                                    renderThumb={({ props }) => (
-                                        <div
-                                            {...props}
-                                            style={{
-                                                ...props.style,
-                                                height: "15px",
-                                                width: "15px",
-                                                backgroundColor: "#4450A2",
-                                                borderRadius: "50%",
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </div>
-
-                            <div className="slider-price-btn">
-                                <div className="sidebar-filter-values">
-                                    <label className="price-range-label">
-                                        <div>
-                                            ₹{values[0]} - ₹{values[1]}
-                                        </div>
-                                    </label>
+                        {minPrice !== maxPrice ? (
+                            <>
+                                <div className="slider-btn">
+                                    <Range
+                                        className="price-slider-range"
+                                        values={values}
+                                        step={100}
+                                        min={minPrice}
+                                        max={maxPrice}
+                                        onChange={(newValues) => setValues(newValues)}
+                                        renderTrack={({ props, children }) => (
+                                            <div
+                                                {...props}
+                                                style={{
+                                                    ...props.style,
+                                                    width: "100%",
+                                                    background: "white",
+                                                    borderRadius: "4px",
+                                                    margin: "20px 0",
+                                                    border: "0.5px solid grey",
+                                                }}
+                                            >
+                                                {children}
+                                            </div>
+                                        )}
+                                        renderThumb={({ props }) => (
+                                            <div
+                                                {...props}
+                                                style={{
+                                                    ...props.style,
+                                                    height: "15px",
+                                                    width: "15px",
+                                                    backgroundColor: "#4450A2",
+                                                    borderRadius: "50%",
+                                                }}
+                                            />
+                                        )}
+                                    />
                                 </div>
 
-                                <button className="filter-button" onClick={handleFilterProducts}>
-                                    Filter
-                                </button>
-                            </div>
-                        </div>
+                                <div className="slider-price-btn">
+                                    <div className="sidebar-filter-values">
+                                        <label className="price-range-label">
+                                            <div>
+                                                ₹{values[0]} - ₹{values[1]}
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <button className="filter-button" onClick={handleFilterProducts}>
+                                        Filter
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <p style={{ color: "#888", fontStyle: "italic", marginTop: "1rem" }}>
+                                Price filter not available
+                            </p>
+                        )}
 
                         <div className="category-filter-section">
                             <div className="sidebar-category-heading">Categories</div>

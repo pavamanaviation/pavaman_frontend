@@ -3,6 +3,7 @@ import "./CustomerEditAddress.css";
 import PopupMessage from "../../../components/Popup/Popup";
 import PhoneInput from "react-phone-input-2";
 import API_BASE_URL from "../../../config";
+import { ClipLoader } from "react-spinners";
 
 const CartEditAddress = ({ address, onEditCompleted }) => {
     const wrapperRef = useRef(null);
@@ -83,6 +84,7 @@ const CartEditAddress = ({ address, onEditCompleted }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            setLoading(true);
             const response = await fetch(`${API_BASE_URL}/edit-customer-address`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -101,6 +103,8 @@ const CartEditAddress = ({ address, onEditCompleted }) => {
             displayPopup("An unexpected error occurred.", "error");
             onEditCompleted("An unexpected error occurred.");
             console.error("Update error:", error);
+        } finally {
+            setLoading(false);
         }
     };
     return (
@@ -275,8 +279,16 @@ const CartEditAddress = ({ address, onEditCompleted }) => {
                     </div>
 
                     <div className="cart-actions">
-                        <button className="cart-place-order" type="submit">
-                            SAVE
+                        <button
+                            className="cart-place-order"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ClipLoader size={20} color="#ffffff" />
+                            ) : (
+                                "SAVE"
+                            )}
                         </button>
                         <button
                             className="cart-delete-selected"

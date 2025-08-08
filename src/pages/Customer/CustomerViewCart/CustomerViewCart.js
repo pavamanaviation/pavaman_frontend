@@ -555,7 +555,7 @@ const CustomerViewCart = () => {
                                 <div className="cart-prices">
                                     <div className="cart-price">
                                         <div className="cart-price-label">Price ({cartItems.length} items)</div>
-                                        <div className="cart-price-value">₹ {calculatePrice(cartItems) ? calculatePrice(cartItems).toFixed(2) : "0.00"} </div>
+                                        <div className="cart-price-value">₹ {calculatePrice(cartItems) ? calculatePrice(cartItems).toFixed(2) : "0.00"} (incl GST)</div>
                                     </div>
                                     <div className="cart-price cart-disfee">
                                         <div className="cart-price-label">Gst Amount</div>
@@ -580,7 +580,7 @@ const CustomerViewCart = () => {
                                 <div className="cart-prices">
                                     <div className="cart-price cart-payable">
                                         <div className="cart-price-label"><b>Price ({selectedProducts.length} items)</b></div>
-                                        <div className="cart-price-value"><b>₹ {calculateSelectedPrice() ? calculateSelectedPrice().toFixed(2) : "0.00"} </b></div>
+                                        <div className="cart-price-value"><b>₹ {calculateSelectedPrice() ? calculateSelectedPrice().toFixed(2) : "0.00"}(incl GST) </b></div>
                                     </div>
                                     <div className="cart-price cart-disfee">
                                         <div className="cart-price-label">Gst Amount</div>

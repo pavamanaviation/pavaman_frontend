@@ -50,6 +50,7 @@ const AdminCustomerReports = () => {
 
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
@@ -207,9 +208,17 @@ const AdminCustomerReports = () => {
       console.error('Error fetching order status summary', err);
     }
   };
-  const handleFilterClick = () => {
-    fetchMonthlyRevenue(adminId);
+
+
+  const handleFilterClick = async () => {
+    try {
+      setIsFilterLoading(true);
+      await fetchMonthlyRevenue(adminId);
+    } finally {
+      setIsFilterLoading(false);
+    }
   };
+
 
   if (isLoading) {
     return (
@@ -226,7 +235,7 @@ const AdminCustomerReports = () => {
     <div className="dashboard-reports">
       <h2 className='sales-reports'>Sales Reports</h2>
       <div className="summary-cards">
-   <div className="card-sales-first">
+        <div className="card-sales-first">
           <h3 className='today-heading'><BsCoin className="today-icon" />Today</h3>
           <p>{formatAmount(summary.today)}</p>
         </div>
@@ -313,7 +322,13 @@ const AdminCustomerReports = () => {
               </div>
             )}
 
-            <button className='reprt-revenue-filter' onClick={handleFilterClick}>Filter</button>
+            <button className='reprt-revenue-filter' onClick={handleFilterClick} disabled={isFilterLoading}>
+              {isFilterLoading ? (
+                <ClipLoader size={20} color="#ffffff" />
+              ) : (
+                "Filter"
+              )}
+            </button>
           </div>
 
           <div className="bar-chart">
@@ -426,12 +441,12 @@ const AdminCustomerReports = () => {
                   <td >{p.product_name}</td>
                 </tr>
               ))}
-            
+
             </tbody>
           </table>
-            <button className="view-more-button" onClick={() => navigate("/bottom-products")}>
-                View More...
-              </button>
+          <button className="view-more-button" onClick={() => navigate("/bottom-products")}>
+            View More...
+          </button>
         </div>
       </div>
     </div>

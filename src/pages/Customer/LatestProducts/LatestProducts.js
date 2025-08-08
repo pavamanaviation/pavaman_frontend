@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import PopupMessage from "../../../components/Popup/Popup";
 import { Link } from "react-router-dom";
 import "./LatestProducts.css";
+import { ClipLoader } from "react-spinners";
 
 const LatestProducts = () => {
     const [products, setProducts] = useState([]);
@@ -25,7 +26,7 @@ const LatestProducts = () => {
         }
     }, [customer_id]);
 
-    
+
     const displayPopup = (text, type = "success") => {
         setPopupMessage({ text, type });
         setShowPopup(true);
@@ -61,24 +62,49 @@ const LatestProducts = () => {
     };
 
     const toggleWishlist = async (productId) => {
+        if (!customer_id) {
+            displayPopup(
+                <>Please <Link to="/customer-login" className="popup-link">log in</Link> to manage wishlist.</>,
+                "error"
+            );
+            navigate("/customer-login");
+            return;
+        }
+
+        const product = products.find((p) => p.product_id === productId);
+        const isWishlisted = product?.wishlist;
+
+        const endpoint = isWishlisted ? "remove-wishlist" : "add-to-wishlist";
+
         try {
-            const response = await axios.post(`${API_BASE_URL}/toggle-wishlist`, {
-                customer_id: customer_id,
+            const response = await axios.post(`${API_BASE_URL}/${endpoint}`, {
+                customer_id,
                 product_id: productId,
             });
 
             if (response.data.status === "success") {
-                const updated = wishlist.includes(productId)
-                    ? wishlist.filter((id) => id !== productId)
-                    : [...wishlist, productId];
-                setWishlist(updated);
+                setProducts((prevProducts) =>
+                    prevProducts.map((product) =>
+                        product.product_id === productId
+                            ? { ...product, wishlist: !isWishlisted }
+                            : product
+                    )
+                );
+
+                displayPopup(
+                    isWishlisted ? "Removed from wishlist." : "Added to wishlist.",
+                    "success"
+                );
+            } else {
+                displayPopup(response.data.message || "Something went wrong.", "error");
             }
         } catch (err) {
             console.error("Wishlist toggle failed", err);
+            displayPopup("An error occurred while updating wishlist.", "error");
         }
     };
 
-  const handleAddCart = async (productId) => {
+    const handleAddCart = async (productId) => {
         if (!customer_id) {
             displayPopup(
                 <>
@@ -90,14 +116,17 @@ const LatestProducts = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
             const response = await fetch(`${API_BASE_URL}/add-cart-product`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    customer_id :  customer_id, 
-                    product_id : productId, 
-                    quantity: 1 }),
+                body: JSON.stringify({
+                    customer_id: customer_id,
+                    product_id: productId,
+                    quantity: 1
+                }),
             });
 
             const data = await response.json();
@@ -110,33 +139,43 @@ const LatestProducts = () => {
             }
         } catch (error) {
             displayPopup("An unexpected error occurred while adding to cart.", "error");
+        } finally {
+            setLoading(false);
         }
     };
 
-      const handleViewProductDetails = (product) => {
-  if (!product.category_id || !product.sub_category_id) {
-    console.error("Missing category_id or sub_category_id");
-    return;
-  }
+    const handleViewProductDetails = (product) => {
+        if (!product.category_id || !product.sub_category_id) {
+            console.error("Missing category_id or sub_category_id");
+            return;
+        }
 
-  localStorage.setItem("category_id", product.category_id);
-  localStorage.setItem("sub_category_id", product.sub_category_id);
-  localStorage.setItem("category_name", product.category);
-  localStorage.setItem("sub_category_name", product.sub_category);
-  localStorage.setItem("product_name", product.product_name);
+        localStorage.setItem("category_id", product.category_id);
+        localStorage.setItem("sub_category_id", product.sub_category_id);
+        localStorage.setItem("category_name", product.category);
+        localStorage.setItem("sub_category_name", product.sub_category);
+        localStorage.setItem("product_name", product.product_name);
 
-  navigate(`/product-details/${product.category}/${product.sub_category}/${product.product_id}`, {
-    state: {
-      category_name: product.category,
-      sub_category_name: product.sub_category,
-      product_name: product.product_name,
-    },
-  });
-};
+        navigate(`/product-details/${product.category}/${product.sub_category}/${product.product_id}`, {
+            state: {
+                category_name: product.category,
+                sub_category_name: product.sub_category,
+                product_name: product.product_name,
+            },
+        });
+    };
     return (
         <div className="trending-container container customer-products">
             <CarouselLanding />
-            {loading && <p>Loading...</p>}
+            {loading && (
+                <div className="full-page-loading">
+                    <div className="loading-content">
+                        <ClipLoader size={50} color="#4450A2" />
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            )}
+
             {error && <p>{error}</p>}
 
             {!loading && !error && (
@@ -144,11 +183,11 @@ const LatestProducts = () => {
                     <div className="breadcrumb">
                         <span className="breadcrumb-link" onClick={() => navigate("/")}>Home</span>
                         <span className="breadcrumb-separator"> › </span>
-                        <span  className="breadcrumb-link" onClick={() => navigate("/latest-products")}>Latest Products</span>
+                        <span className="breadcrumb-link" onClick={() => navigate("/latest-products")}>Latest Products</span>
                     </div>
 
                     <div className="customer-products-heading">Latest Products</div>
-                      <div className="popup-discount">
+                    <div className="popup-discount">
                         {showPopup && (
                             <PopupMessage
                                 message={popupMessage.text}
@@ -161,7 +200,7 @@ const LatestProducts = () => {
                         {products.map((product) => (
                             <div
                                 key={product.product_id}
-                                className="customer-product-card"
+                                className="customer-product-card  latest-product-div"
                                 onClick={() => handleViewProductDetails(product)}
                             >
                                 <div
@@ -171,7 +210,9 @@ const LatestProducts = () => {
                                         toggleWishlist(product.product_id);
                                     }}
                                 >
-                                    {wishlist.includes(product.product_id) ? (
+                                    {loading ? (
+                                        <ClipLoader size={15} color="#ff0000" />
+                                    ) : wishlist.includes(product.product_id) ? (
                                         <AiFillHeart className="wishlist-heart filled" />
                                     ) : (
                                         <AiOutlineHeart className="wishlist-heart" />
@@ -213,31 +254,35 @@ const LatestProducts = () => {
 
                                     <div className="add-cart-section">
                                         <span
-                                            className={`availability ${
-                                                product.availability === "Out of Stock"
-                                                    ? "out-of-stock"
-                                                    : product.availability === "Very Few Products Left"
+                                            className={`availability ${product.availability === "Out of Stock"
+                                                ? "out-of-stock"
+                                                : product.availability === "Very Few Products Left"
                                                     ? "few-left"
                                                     : "in-stock"
-                                            }`}
+                                                }`}
                                         >
                                             {product.availability === "Out of Stock"
                                                 ? "Out of Stock"
                                                 : product.availability === "Very Few Products Left"
-                                                ? "Very Few Products Left"
-                                                : "In Stock"}
+                                                    ? "Very Few Products Left"
+                                                    : "In Stock"}
                                         </span>
-
                                         {(product.availability === "In Stock" ||
                                             product.availability === "Very Few Products Left") && (
-                                            <BiSolidCartAdd
-                                                className="add-to-cart-button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleAddCart(product.product_id);
-                                                }}
-                                            />
-                                        )}
+                                                <>
+                                                    {loading ? (
+                                                        <ClipLoader size={20} color="#4450A2" />
+                                                    ) : (
+                                                        <BiSolidCartAdd
+                                                            className="add-to-cart-button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleAddCart(product.product_id);
+                                                            }}
+                                                        />
+                                                    )}
+                                                </>
+                                            )}
                                     </div>
                                 </div>
                             </div>

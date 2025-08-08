@@ -302,3 +302,21 @@
 .arrows-div{
     display: flex
 }
+
+.full-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
+}
+
+button {
+  min-width: 80px;
+  min-height: 36px;
+}
+
+button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

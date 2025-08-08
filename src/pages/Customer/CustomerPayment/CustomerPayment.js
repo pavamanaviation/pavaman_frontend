@@ -98,5 +98,3 @@ const RazorpayPayment = ({ orderSummary, setPaymentLoading }) => {
 };
 
 export default RazorpayPayment;
-
-

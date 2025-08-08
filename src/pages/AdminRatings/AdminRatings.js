@@ -17,6 +17,8 @@ const AdminRatings = () => {
   const adminId = sessionStorage.getItem("admin_id");
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
     setShowPopup(true);
@@ -60,6 +62,7 @@ const AdminRatings = () => {
 
   const downloadExcel = async () => {
     try {
+      setIsDownloading(true);
       const response = await axios.post(
         `${API_BASE_URL}/download-feedback-excel`,
         { admin_id: adminId },
@@ -74,6 +77,8 @@ const AdminRatings = () => {
       link.remove();
     } catch (error) {
       displayPopup('Failed to download Excel.', "error");
+    } finally {
+      setIsDownloading(false);
     }
   };
   const navigateToAverageRatings = () => {
@@ -103,8 +108,15 @@ const AdminRatings = () => {
         <h3 className="report-title heading-admin">Feedback Reports</h3>
         <div className='discount-buttons admin-rating-buttons'>
           <button className='cart-place-order-average-btn ' onClick={navigateToAverageRatings}>Average Rating Page</button>
-          <button className='cart-place-order' onClick={downloadExcel}>Download Excel</button>
-        </div>
+          <button className='cart-place-order' onClick={downloadExcel} disabled={isDownloading}>
+            {isDownloading ? (
+              <>
+                <ClipLoader size={15} color="#ffffff" /> Downloading...
+              </>
+            ) : (
+              "Download Excel"
+            )}
+          </button>        </div>
       </div>
       <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />

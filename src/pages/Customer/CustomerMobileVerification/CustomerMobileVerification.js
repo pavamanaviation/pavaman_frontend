@@ -9,8 +9,6 @@ const CustomerMobileVerification = () => {
     const navigate = useNavigate();
     const userId = "17";
 
-    console.log("User ID in Mobile Verification:", userId);
-
     if (!userId) {
         navigate("/customer-login");
         return null;
@@ -27,8 +25,6 @@ const CustomerMobileVerification = () => {
                 user_id: userId,
                 mobile_no: mobile,
             });
-
-            console.log("Submit Mobile Response:", response.data);
 
             if (response.data.message) {
                 setPopupMessage({ text: response.data.message, type: "success" });

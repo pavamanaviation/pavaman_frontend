@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./ViewMoreProductDetails.css"; 
+import "./ViewMoreProductDetails.css";
 import { FaAngleLeft } from "react-icons/fa6";
 import { FaAngleRight } from "react-icons/fa";
 import { FaRupeeSign } from "react-icons/fa";
 import API_BASE_URL from "../../config";
 import PopupMessage from "../../components/Popup/Popup";
+import { ClipLoader } from "react-spinners";
 
 const ViewProductDetails = () => {
   const [productDetails, setProductDetails] = useState(null);
@@ -25,17 +26,17 @@ const ViewProductDetails = () => {
   const [editableSpecs, setEditableSpecs] = useState([]);
 
   const [showSpecSuccessPopup, setShowSpecSuccessPopup] = useState(false);
-const [specMessage, setSpecMessage] = useState("");
+  const [specMessage, setSpecMessage] = useState("");
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
-const displayPopup = (text, type = "success") => {
-  setPopupMessage({ text, type });
-  setShowPopup(true);
+  const displayPopup = (text, type = "success") => {
+    setPopupMessage({ text, type });
+    setShowPopup(true);
 
-  setTimeout(() => {
-    setShowPopup(false);
-  }, 5000);
-};
+    setTimeout(() => {
+      setShowPopup(false);
+    }, 5000);
+  };
 
   useEffect(() => {
     if (!admin_id || !category_id || !sub_category_id || !product_id) {
@@ -48,6 +49,7 @@ const displayPopup = (text, type = "success") => {
   }, []);
 
   const fetchProductDetails = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/view-product-details`, {
         admin_id,
@@ -132,11 +134,12 @@ const displayPopup = (text, type = "success") => {
   };
   const handleSubmitSpecifications = async () => {
     if (specifications.some((spec) => !spec.name.trim() || !spec.value.trim())) {
-      displayPopup("Please fill in all specifications.","error");
+      displayPopup("Please fill in all specifications.", "error");
       return;
     }
 
     try {
+      setLoading(true);
       const response = await axios.post(`${API_BASE_URL}/add-product-specifications`, {
         admin_id,
         category_id,
@@ -150,15 +153,17 @@ const displayPopup = (text, type = "success") => {
         displayPopup("Specification added successfully!", "success");
         setIsAddingSpecifications(false);
         setTimeout(() => {
-        fetchProductDetails();
-      }, 100);
+          fetchProductDetails();
+        }, 100);
 
       }
-       else {
-        displayPopup(response.data.error,"error");
+      else {
+        displayPopup(response.data.error, "error");
       }
     } catch (error) {
-      displayPopup("Failed to add specifications.","error");
+      displayPopup("Failed to add specifications.", "error");
+    } finally {
+      setLoading(false);
     }
   };
   const handleSubmitEditedSpecifications = async () => {
@@ -177,11 +182,11 @@ const displayPopup = (text, type = "success") => {
         setIsEditingSpecifications(false);
         displayPopup("Specification updated successfully!", "success");
       }
-       else {
-        displayPopup(response.data.error || "Failed to update specifications.","error");
+      else {
+        displayPopup(response.data.error || "Failed to update specifications.", "error");
       }
     } catch (error) {
-      displayPopup("Error updating specifications.","error");
+      displayPopup("Error updating specifications.", "error");
     }
   };
 
@@ -189,12 +194,20 @@ const displayPopup = (text, type = "success") => {
     <div className="container">
 
 
-      {loading && <p className="loading">Loading...</p>}
+      {loading && (
+        <div className="full-page-loading">
+          <div className="loading-content">
+            <ClipLoader size={50} color="#4450A2" />
+            <p>Loading...</p>
+          </div>
+        </div>
+      )}
+
       {error && <p className="error">{error}</p>}
       <div className="admin-popup">
         <PopupMessage message={popupMessage.text} type={popupMessage.type} show={showPopup} />
       </div>
-              
+
       {productDetails?.product_details && (
         <div className="product-details">
           <div className="product-info-top-section">
@@ -246,14 +259,14 @@ const displayPopup = (text, type = "success") => {
 
                 <p className="view-product-name">{productDetails.product_details.product_name || "N/A"}</p>
                 <p className="view-product-price"> <FaRupeeSign /> {productDetails.product_details.final_price || "N/A"}(include GST)</p>
-                 
-{productDetails.product_details.price !== productDetails.product_details.final_price && (
-  <p className="customer-original-price">
-    ₹ {productDetails.product_details.price}
-    <span>(Incl. GST)</span>
-  
-  </p>
-)}
+
+                {productDetails.product_details.price !== productDetails.product_details.final_price && (
+                  <p className="customer-original-price">
+                    ₹ {productDetails.product_details.price}
+                    <span>(Incl. GST)</span>
+
+                  </p>
+                )}
 
 
                 <p className="view-product-discount"> <strong> Discount:</strong> {productDetails.product_details.discount || "N/A"}</p>
@@ -268,7 +281,7 @@ const displayPopup = (text, type = "success") => {
               <div className="view-product-codes">
 
                 <p className="view-product-sku"><strong>SKU : </strong> {productDetails.product_details.sku_number || "N/A"}</p>
-                <p className="view-product-hsn"><strong>HSN: </strong> {productDetails.product_details.hsn_code || "N/A"}</p> 
+                <p className="view-product-hsn"><strong>HSN: </strong> {productDetails.product_details.hsn_code || "N/A"}</p>
               </div>
             </div>
           </div>
@@ -287,7 +300,7 @@ const displayPopup = (text, type = "success") => {
 
               {activeTab === "specifications" && (
                 <div className="specification-container">
-           {!isAddingSpecifications && !isEditingSpecifications ? (
+                  {!isAddingSpecifications && !isEditingSpecifications ? (
                     <div>
                       {productDetails.product_details.specifications ? (
                         <table className="specifications-table">
@@ -394,7 +407,13 @@ const displayPopup = (text, type = "success") => {
 
                       <div className="specification-buttons">
                         <button className="add-cancel-btn" onClick={() => setIsAddingSpecifications(false)}>Cancel</button>
-                        <button className="add-submit-btn" onClick={handleSubmitSpecifications}>Add</button>
+                        <button
+                          className="add-submit-btn"
+                          onClick={handleSubmitSpecifications}
+                          disabled={loading}
+                        >
+                          {loading ? <ClipLoader size={20} color="#ffffff" /> : "Add"}
+                        </button>
                       </div>
                     </div>
                   )}
@@ -414,7 +433,13 @@ const displayPopup = (text, type = "success") => {
 
                       <div className="specification-buttons">
                         <button className="edit-cancel-btn" onClick={() => setIsEditingSpecifications(false)}>Cancel</button>
-                        <button className="edit-submit-btn" onClick={handleSubmitEditedSpecifications}>Update</button>
+                        <button
+                          className="edit-submit-btn"
+                          onClick={handleSubmitEditedSpecifications}
+                          disabled={loading}
+                        >
+                          {loading ? <ClipLoader size={20} color="#ffffff" /> : "Update"}
+                        </button>
                       </div>
                     </div>
                   )}
@@ -443,7 +468,7 @@ const displayPopup = (text, type = "success") => {
         </div>
 
       )}
-  
+
 
     </div>
   );

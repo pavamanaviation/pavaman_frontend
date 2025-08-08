@@ -175,3 +175,21 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.discount-buttons button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.discount-buttons button:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.discount-buttons button .react-spinners {
+  display: inline-block;
+  margin-right: 8px;
+}

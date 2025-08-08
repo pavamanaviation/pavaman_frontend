@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PopupMessage from "../../components/Popup/Popup";
 import API_BASE_URL from "../../config";
+import { ClipLoader } from "react-spinners";
 
 const AddSpecification = () => {
   const location = useLocation();
@@ -12,6 +13,8 @@ const AddSpecification = () => {
   const [specifications, setSpecifications] = useState([]);
   const [popupMessage, setPopupMessage] = useState({ text: "", type: "" });
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   const displayPopup = (text, type = "success") => {
     setPopupMessage({ text, type });
@@ -29,7 +32,7 @@ const AddSpecification = () => {
   const handleDecrement = () => {
     if (numSpecifications > 0) {
       setNumSpecifications((prev) => prev - 1);
-      setSpecifications(specifications.slice(0, -1)); 
+      setSpecifications(specifications.slice(0, -1));
     }
   };
   const handleSpecificationChange = (index, field, value) => {
@@ -47,6 +50,7 @@ const AddSpecification = () => {
       displayPopup("Please fill in all specifications.", "error");
       return;
     }
+    setLoading(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/add-product-specifications`, {
         admin_id,
@@ -57,10 +61,10 @@ const AddSpecification = () => {
         specifications,
       });
       if (response.data.status_code === 200) {
-      displayPopup("Specifications added successfully!", "success");
-      setTimeout(() => {
-        navigate(-1);
-      }, 2000);  
+        displayPopup("Specifications added successfully!", "success");
+        setTimeout(() => {
+          navigate(-1);
+        }, 2000);
       } else {
         displayPopup(response.data.error || "Failed to add specifications.", "error");
 
@@ -68,6 +72,8 @@ const AddSpecification = () => {
     } catch (error) {
       displayPopup("Failed to add specifications.", "error");
 
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -101,8 +107,16 @@ const AddSpecification = () => {
           />
         </div>
       ))}
-      <button onClick={handleSubmitSpecifications} disabled={numSpecifications === 0}>
-        Add
+      <button
+        onClick={handleSubmitSpecifications}
+        disabled={numSpecifications === 0 || loading}
+        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        {loading ? (
+          <ClipLoader size={20} color="#ffffff" />
+        ) : (
+          "Add"
+        )}
       </button>
       <button onClick={() => navigate(-1)}>
         Cancel

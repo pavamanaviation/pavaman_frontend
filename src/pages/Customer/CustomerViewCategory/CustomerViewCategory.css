@@ -322,3 +322,28 @@
 .latest-product-name{
     margin: 0px auto;
 }
+
+.wishlist-heart.filled {
+    color: red;
+}
+
+.filter-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.filter-button .react-spinners {
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.wishlist-icon .react-spinners {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.add-cart-section .react-spinners {
+    margin-left: 8px;
+}

@@ -55,6 +55,7 @@
     width: 150px;
     height: 150px;
     border-radius: 20px;
+    cursor: pointer;
 }
 
 .card-name{
@@ -91,10 +92,12 @@
 
 .edit-label{
     color: rgb(51, 175, 51);
+    cursor: pointer;
 }
 
 .delete-label{
     color: rgb(212, 75, 75);
+    cursor: pointer;
 }
 
 .add-category-card{
@@ -102,11 +105,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* max-height: 355px; */
+    cursor: pointer;
 }
-/* .product-card,.product-cards .add-category-card{
-    height: 440px;
-} */
 
 .card-code, .card-price{
     font-size: 18px;

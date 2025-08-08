@@ -309,41 +309,47 @@ const CustomerViewProducts = () => {
     }, [products]);
 
 
-    const toggleWishlist = async (product_id) => {
-        const customer_id = localStorage.getItem("customer_id");
-        if (!customer_id) {
+const toggleWishlist = async (product_id) => {
+    const customer_id = localStorage.getItem("customer_id");
+
+    if (!customer_id) {
+        displayPopup(
+            <>Please <Link to="/customer-login" className="popup-link">log in</Link> to manage wishlist.</>,
+            "error"
+        );
+        return;
+    }
+
+    const isWishlisted = wishlist.includes(product_id);
+    const endpoint = isWishlisted ? "remove-wishlist" : "add-to-wishlist";
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customer_id, product_id }),
+        });
+
+        const data = await response.json();
+
+        if (data.status_code === 200) {
             displayPopup(
-                <>
-                    Please <Link to="/customer-login" className="popup-link">log in</Link> to add to wishlist.
-                </>,
-                "error"
+                isWishlisted ? "Removed from wishlist." : "Added to wishlist.",
+                "success"
             );
-            return;
-        }
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/add-to-wishlist`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customer_id, product_id }),
-            });
-            const data = await response.json();
-
-            if (data.status_code === 200) {
-                displayPopup(data.message, "success");
-
-                setWishlist((prev) =>
-                    prev.includes(product_id)
-                        ? prev.filter((id) => id !== product_id)
-                        : [...prev, product_id]
-                );
+            if (isWishlisted) {
+                setWishlist((prev) => prev.filter((id) => id !== product_id));
             } else {
-                displayPopup(data.message || "Failed to add to wishlist.", "error");
+                setWishlist((prev) => [...prev, product_id]);
             }
-        } catch (error) {
-            displayPopup("An error occurred while adding to wishlist.", "error");
+        } else {
+            displayPopup(data.message || "Something went wrong.", "error");
         }
-    };
+    } catch (error) {
+        displayPopup("An error occurred while updating wishlist.", "error");
+    }
+};
 
     if (loading) {
         return (

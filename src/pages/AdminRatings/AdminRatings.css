@@ -14,8 +14,6 @@
 
  .admin-rating-buttons{
     right: 15px;
-    /* position: absolute; */
-  
   }
   .rating-button {
     padding: 6px 12px;
@@ -82,4 +80,17 @@
   font-weight: 600;
   color: #4450A2;
   margin: 0 15px;
+}
+
+.cart-place-order {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cart-place-order:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
 }

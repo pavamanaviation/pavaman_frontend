@@ -367,3 +367,19 @@
   font-size: 16px;
   font-weight: 500;
 }
+
+.reprt-revenue-filter {
+  position: relative;
+}
+
+.reprt-revenue-filter:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.reprt-revenue-filter .react-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

@@ -108,3 +108,11 @@
     grid-template-columns: 1fr;
   }
 }
+
+.no-products-message{
+  margin: 20px auto;
+}
+
+.wishlist-image-wrapper {
+  position: relative;
+}

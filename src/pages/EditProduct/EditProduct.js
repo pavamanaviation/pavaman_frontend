@@ -66,7 +66,6 @@ const EditProduct = () => {
       return prev;
     });
 
-console.log(`${name} updated. Selected ${files.length} file(s).`);
 
   };
 
