@@ -256,7 +256,9 @@ const CustomerViewProductDetails = () => {
     };
 
     const handleShare = (product) => {
-        const shareUrl = `${API_BASE_URL}/share-preview/${product.product_id}`;
+        // const shareUrl = `${API_BASE_URL}/share-preview/${product.product_id}`;
+        const shareUrl = `${window.location.origin}/share-preview/${productDetails.category_name}/${productDetails.sub_category_name}/${productDetails.product_name}`;
+
 
         if (navigator.share) {
             navigator.share({
