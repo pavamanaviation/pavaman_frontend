@@ -5,6 +5,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
 import axios from "axios";
 import API_BASE_URL from "../../../config";
+import { FaHeart } from "react-icons/fa";
 
 const CustomerProfileOptions = () => {
   const navigate = useNavigate();
@@ -60,6 +61,11 @@ const CustomerProfileOptions = () => {
 
           <div className="profile-option" onClick={() => navigate("/address")}>
             <span>Address</span>
+            <IoIosArrowForward />
+          </div>
+
+           <div className="profile-option" onClick={() => navigate("/wishlist")}>
+            <span>My Wishlist</span>
             <IoIosArrowForward />
           </div>
 

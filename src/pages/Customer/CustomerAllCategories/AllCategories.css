@@ -26,7 +26,6 @@
   .all-categories-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
     max-width: 120px; 
     margin-bottom: 20px;
   }

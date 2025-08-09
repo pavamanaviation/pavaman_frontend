@@ -181,9 +181,11 @@ const ViewCategoriesAndDiscountedProducts = () => {
                       <div className="featured-latest-product">
                         <img src={latestProducts[0].product_image} alt={latestProducts[0].product_name} />
                         <div className="featured-product-name">{latestProducts[0].product_name}</div>
+                        <div className="explore-btn">          
                         <button className="view-more-btn cart-place-order" onClick={() => navigate("/latest-products")}>
                           Explore More
                         </button>
+                        </div>
                       </div>
                       <div className="latest-products-grid">
                         {latestProducts.slice(1, 7).map((product) => (

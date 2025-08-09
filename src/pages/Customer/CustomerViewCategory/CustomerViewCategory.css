@@ -347,3 +347,8 @@
 .add-cart-section .react-spinners {
     margin-left: 8px;
 }
+
+.explore-btn{
+   display: flex;
+  justify-content: center;
+}
