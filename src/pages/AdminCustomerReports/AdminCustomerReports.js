@@ -398,6 +398,7 @@ const AdminCustomerReports = () => {
             <thead>
               <tr>
                 <th>Product Name</th>
+                <th>Price</th>
                 <th>Quantity</th>
               </tr>
             </thead>
@@ -405,6 +406,7 @@ const AdminCustomerReports = () => {
               {(topProducts || []).map(p => (
                 <tr key={p.product_id}>
                   <td>{p.product_name}</td>
+                  <td>{p.price}</td>
                   <td>{p.total_sold}</td>
                 </tr>
               ))}
@@ -413,17 +415,23 @@ const AdminCustomerReports = () => {
         </div>
 
         <div className="bottom-products">
-          <h3>Bottom 5 Products</h3>
+          <h3>Not Selling Products</h3>
           <table className='dashboard-table'>
             <thead>
               <tr>
                 <th>Product Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+
               </tr>
             </thead>
             <tbody>
               {(bottmProducts || []).map(p => (
                 <tr key={p.id}>
                   <td >{p.product_name}</td>
+                  <td>{p.price}</td>
+                  <td>{p.quantity}</td>
+
                 </tr>
               ))}
             

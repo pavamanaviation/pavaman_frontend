@@ -274,18 +274,25 @@
 
 .delivery_status{
   color: green;
+  font-weight: bold;
+
 }
 
 .shipping_status{
   color: orange;
+  font-weight: bold;
+
 }
 
 .order_placed{
   color:green;
+  font-weight: bold;
 }
 
 .payment_pending {
-  color: red;
+  color: orangered;
+  font-weight: bold;
+
 }
 
 .clear-filters-button {
@@ -521,4 +528,25 @@
 .last-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.cancel-order-button{
+  background-color: none;
+  background: none;
+  border: none;
+  color: #4450A2;
+  font-weight: 600;
+  border: 2px solid #4450A2;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.cancel-button-container{
+  text-align: right;
+}
+
+
+.order_cancelled {
+  color: #ff0000;
+  font-weight: bold;
 }

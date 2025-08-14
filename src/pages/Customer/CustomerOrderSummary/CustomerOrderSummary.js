@@ -114,7 +114,7 @@ const OrderSummary = ({ orderSummary, setOrderSummary = () => { }, setPopup = ()
                         <div className="order-product-title"> {order.product_name}</div>
                         <div className="order-price-section order-discount-price"> ₹ {order.final_price.toFixed(2)}</div>
                         {parseFloat(order.final_price).toFixed(2) !== parseFloat(order.product_price).toFixed(2) && (
-                            <div className="order-price-section order-original-price"> ₹ {order.product_price}/-(incl. GST)</div>
+                            <div className="order-price-section order-original-price"> ₹ {order.product_price}(incl. GST)</div>
                         )}
                         <div><strong>Quantity:</strong> {order.quantity}</div>
                         <div><strong>Total Price:</strong> ₹ {(order.quantity * order.final_price).toFixed(2)}</div>
@@ -126,9 +126,9 @@ const OrderSummary = ({ orderSummary, setOrderSummary = () => { }, setPopup = ()
                 const grandTotal = orders.reduce((sum, order) => sum + (order.quantity * order.final_price), 0) + totalDeliveryCharge;
                 return (
                     <div className="order-total-summary">
-                        <p><strong>Platform Fee:</strong> ₹0.00</p>
-                        <div><strong>Total Delivery Charges:</strong> ₹ {totalDeliveryCharge.toFixed(2)}</div>
-                        <div><strong>Grand Total:</strong> ₹ {grandTotal.toFixed(2)}</div>
+                        <div><span>Platform Fee</span><span> ₹0.00</span></div>
+                        <div><span>Total Delivery Charges</span><span> ₹ {totalDeliveryCharge.toFixed(2)}</span></div>
+                        <div><span>Grand Total</span> <span>₹ {grandTotal.toFixed(2)}</span></div>
                     </div>
                 );
             })()}

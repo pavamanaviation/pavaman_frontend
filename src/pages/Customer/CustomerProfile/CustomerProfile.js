@@ -123,7 +123,8 @@ const handleEditClick = (field) => {
   const sendPreviousEmailOtp = async () => {
     const response = await fetch(`${API_BASE_URL}/edit-profile-email`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+       credentials: "include",
+      headers: { "Content-Type": "application/json"},
       body: JSON.stringify({
         action: "send_previous_otp",
         customer_id: customerId,
@@ -141,6 +142,8 @@ const handleEditClick = (field) => {
   const verifyPreviousEmailOtp = async () => {
     const response = await fetch(`${API_BASE_URL}/edit-profile-email`, {
       method: "POST",
+       credentials: "include",
+
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "verify_previous_otp",
@@ -171,6 +174,8 @@ const handleEditClick = (field) => {
     }
     const response = await fetch(`${API_BASE_URL}/edit-profile-email`, {
       method: "POST",
+       credentials: "include",
+
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "send_new_otp",
@@ -190,7 +195,7 @@ const handleEditClick = (field) => {
   const verifyNewEmailOtpAndUpdate = async () => {
     const response = await fetch(`${API_BASE_URL}/edit-profile-email`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" ,"withCredentials": true},
       body: JSON.stringify({
         action: "verify_new_otp",
         customer_id: customerId,
@@ -216,7 +221,7 @@ const handleEditClick = (field) => {
         body: JSON.stringify({
           action: "send_previous_otp",
           customer_id: customerId,
-          mobile_no: tempData.mobile_no.replace(/^\+/, ""), // <-- remove +
+          mobile_no: tempData.mobile_no.replace(/^\+/, ""),
         }),
       });
       const data = await response.json();

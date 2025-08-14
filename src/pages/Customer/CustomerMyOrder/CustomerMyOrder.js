@@ -75,7 +75,7 @@ const CustomerMyOrders = () => {
         const flatProducts = [];
         data.payments.forEach(order => {
           order.order_products.forEach(product => {
-            flatProducts.push({ ...product, order });
+            flatProducts.push({ ...product, order, payment_id: product.payment_id, });
           });
         });
         const ratingResponse = await fetch(`${API_BASE_URL}/view-rating`, {
@@ -357,6 +357,7 @@ const CustomerMyOrders = () => {
             flatProducts.push({ ...product, order });
           });
         });
+
         const ratingResponse = await fetch(`${API_BASE_URL}/view-rating`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -404,32 +405,85 @@ const CustomerMyOrders = () => {
   const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
 
   const getStatusText = (product) => {
-  const paymentStatus = product.payment_status?.toLowerCase().trim();
+    if (product.order.order_status?.toLowerCase() === "cancelled") {
+      return "Order Cancelled";
+    }
 
-  if (product.delivery_status === "Delivered") {
-    return "Delivered";
-  } else if (product.shipping_status === "Shipped") {
-    return "Shipped, item will be delivered soon";
-  } else if (paymentStatus === "success" || paymentStatus === "payment successful") {
-    return "Payment successful. Order placed, item will be shipped soon";
-  } else {
-    return `Payment Status: ${product.payment_status || "Unknown"}`;
-  }
-};
+    const paymentStatus = product.payment_status?.toLowerCase().trim();
 
-const getStatusClass = (product) => {
-  const paymentStatus = product.payment_status?.toLowerCase().trim();
+    if (product.delivery_status === "Delivered") {
+      return "Delivered";
+    } else if (product.shipping_status === "Shipped") {
+      return "Shipped, item will be delivered soon";
+    } else if (paymentStatus === "success" || paymentStatus === "payment successful") {
+      return "Payment successful. Order placed, item will be shipped soon";
+    } else {
+      return `Payment Status: ${product.payment_status || "Unknown"}`;
+    }
+  };
 
-  if (product.delivery_status === "Delivered") {
-    return "delivery_status";
-  } else if (product.shipping_status === "Shipped") {
-    return "shipping_status";
-  } else if (paymentStatus === "success" || paymentStatus === "payment successful") {
-    return "order_placed";
-  } else {
-    return "payment_pending";
-  }
-};
+  const getStatusClass = (product) => {
+    if (product.order.order_status?.toLowerCase() === "cancelled") {
+      return "order_cancelled";
+    }
+    const paymentStatus = product.payment_status?.toLowerCase().trim();
+
+    if (product.delivery_status === "Delivered") {
+      return "delivery_status";
+    } else if (product.shipping_status === "Shipped") {
+      return "shipping_status";
+    } else if (paymentStatus === "success" || paymentStatus === "payment successful") {
+      return "order_placed";
+    } else {
+      return "payment_pending";
+    }
+  };
+
+  const handleCancelOrder = async (paymentId, orderProductId) => {
+  
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE_URL}/cancel-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_id: customerId,
+          payment_id: paymentId,
+          order_product_id: orderProductId
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        displayPopup(result.message || "Order cancelled successfully.", "success");
+
+        // Update the UI state
+        setProducts(prevProducts =>
+          prevProducts.map(product =>
+            product.order_product_id === orderProductId
+              ? {
+                ...product,
+                payment_status: "Cancelled",
+                order_status: "Cancelled",
+                shipping_status: "",
+                delivery_status: ""
+              }
+              : product
+          )
+        );
+      } else {
+        displayPopup(result.error || "Failed to cancel order.", "error");
+      }
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      displayPopup("An error occurred while cancelling your order.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="my-orders-wrapper container">
@@ -533,8 +587,20 @@ const getStatusClass = (product) => {
                         {product.gst && parseFloat(product.gst) > 0 && <p className="gst-myorder">GST: {product.gst}</p>}
 
                         <p className={getStatusClass(product)}>
-  {getStatusText(product)}
-</p>
+                          {getStatusText(product)}
+                        </p>
+                        {product.payment_status === "Payment Successful" &&
+                          !product.shipping_status &&
+                          !product.delivery_status && product.order.order_status?.toLowerCase() !== "cancelled" && (
+                            <div className="cancel-button-container">
+                              <button
+                                className="cancel-order-button"
+                                onClick={() => handleCancelOrder(product.order.payment_id, product.order_product_id)}
+                              >
+                                Cancel Order
+                              </button>
+                            </div>
+                          )}
 
                         {product.delivery_status === "Delivered" && product.rating && (
                           <div className="product-rating">

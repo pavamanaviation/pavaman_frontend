@@ -14,10 +14,10 @@ const Dashboard = () => {
     const [lowStockProducts, setLowStockProducts] = useState([]);
     const navigate = useNavigate();
     const admin_id = sessionStorage.getItem("admin_id");
-    const[isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-       const fetchAllData = async () => {
+        const fetchAllData = async () => {
             try {
                 setIsLoading(true);
                 await Promise.all([
@@ -34,29 +34,70 @@ const Dashboard = () => {
 
         fetchAllData();
     }, []);
+    const [reports, setReports] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchAllData = async () => {
+            try {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchSummary(),
+                    fetchTopBuyers(),
+                    fetchMonthlyOrders(),
+                    fetchReports() // added here
+                ]);
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                setError("Failed to load dashboard data.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAllData();
+    }, []);
+
+    const fetchReports = async () => {
+        const adminId = sessionStorage.getItem("admin_id");
+        if (!adminId) {
+            setError("Admin session expired. Please log in again.");
+            return;
+        }
+        const response = await axios.post(
+            `${API_BASE_URL}/get-payment-details-by-order`,
+            { admin_id: adminId }
+        );
+        if (response.data.status_code === 200 && Array.isArray(response.data.payments)) {
+            setReports(response.data.payments);
+        } else {
+            setError("Failed to load report data.");
+        }
+    };
+
 
     const fetchSummary = async () => {
-            const response = await axios.post(`${API_BASE_URL}/report-inventory-summary`, { admin_id });
-            setSummaryData(response.data);
-            setLowStockProducts(response.data.low_stock_products || []);
-       
+        const response = await axios.post(`${API_BASE_URL}/report-inventory-summary`, { admin_id });
+        setSummaryData(response.data);
+        setLowStockProducts(response.data.low_stock_products || []);
+
     };
 
     const fetchTopBuyers = async () => {
-            const response = await axios.post(`${API_BASE_URL}/top-buyers-report`, { admin_id });
-            setTopBuyers(response.data.buyers || []);
-       
+        const response = await axios.post(`${API_BASE_URL}/top-buyers-report`, { admin_id });
+        setTopBuyers(response.data.buyers || []);
+
     };
 
     const fetchMonthlyOrders = async () => {
-            const response = await axios.post(`${API_BASE_URL}/monthly-product-orders`, { admin_id });
-            const currentMonth = new Date().toISOString().slice(0, 7);
-            const currentData = response.data.data.find((item) => item.month === currentMonth);
-            setCurrentMonthOrders(currentData ? currentData.total_quantity : 0);
-        
+        const response = await axios.post(`${API_BASE_URL}/monthly-product-orders`, { admin_id });
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        const currentData = response.data.data.find((item) => item.month === currentMonth);
+        setCurrentMonthOrders(currentData ? currentData.total_quantity : 0);
+
     };
 
-     if (isLoading) {
+    if (isLoading) {
         return (
             <div className="full-page-loading">
                 <div className="loading-content">
@@ -83,7 +124,45 @@ const Dashboard = () => {
                     <p>{currentMonthOrders !== null ? `${currentMonthOrders}` : "-"}</p>
                 </div>
             </div>
+            <div className="dashboard-tables">
+                <h2>New Orders</h2>
+                <table className="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>S.no</th>
+                            <th>Customer Name</th>
+                            <th>Mobile Number</th>
+                            <th>Product name</th>
+                            <th>Amount</th>
+                            <th>Order Id</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {reports.length > 0 ? (
+                            reports.slice(0, 10).map((order, index) => (
+                                <tr key={order.payment_id}>
+                                    <td>{index + 1}</td>
+                                    <td>{order.customer_name}</td>
+                                    <td>{order.mobile_number}</td>
+                                    <td>{order.order_products?.[0]?.product_name || "-"}</td>
+                                    <td>{order.total_amount}</td>
+                                    <td>{order.product_order_id}</td>
+                                    <td>{order.payment_date}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" style={{ textAlign: "center" }}>No new orders</td>
+                            </tr>
+                        )}
+                    </tbody>
 
+
+                </table>
+
+                <button className="view-more-button" onClick={() => navigate("/orders")}>View More ...</button>
+            </div>
             <div className="dashboard-tables">
 
                 <div className="dashboard-top-buyers">
@@ -106,7 +185,7 @@ const Dashboard = () => {
                     </table>
                     {topBuyers.length > 5 && (
                         <button className="view-more-button" onClick={() => navigate("/top-buyers")}>
-                                View More...
+                            View More...
                         </button>
                     )}
                 </div>

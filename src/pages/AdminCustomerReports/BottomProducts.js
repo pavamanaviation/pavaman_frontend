@@ -43,6 +43,10 @@ const BottomProductsPage = () => {
               <tr>
                 <th>S.No.</th>
                 <th>Product Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>HSN Code</th>
+                <th>SKU </th>
               </tr>
             </thead>
             <tbody>
@@ -50,6 +54,10 @@ const BottomProductsPage = () => {
                 <tr key={product.id}>
                   <td className="order-table-data">{index + 1}</td>
                   <td className="order-table-data">{product.product_name}</td>
+                  <td className="order-table-data">{product.price}</td>
+                  <td className="order-table-data">{product.quantity}</td>
+                  <td className="order-table-data">{product.hsn_code}</td>
+                  <td className="order-table-data">{product.sku_number}</td>
                 </tr>
               ))}
             </tbody>
